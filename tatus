@@ -1,4 +1,0 @@
-[33m6243770[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mmain[m[33m)[m  Major breakthrough: CWT-LSTM Autoencoder achieving 89.3% precision
-[33mdb44fe1[m[33m ([m[1;31morigin/main[m[33m)[m Update gravitational wave detection notebook with complete workflow
-[33m36dec04[m Add comprehensive pytest test suite with 300+ tests covering all framework components
-[33m00c1a59[m Initial commit: Gravitational wave detection framework

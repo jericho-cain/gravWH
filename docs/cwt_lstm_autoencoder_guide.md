@@ -144,7 +144,7 @@ class SimpleCWTAutoencoder(nn.Module):
 
 ```python
 # 1. Import the model
-from notebooks.cwt_lstm_autoencoder import SimpleCWTAutoencoder, preprocess_with_cwt
+from gravitational_wave_hunter.models.cwt_lstm_autoencoder import SimpleCWTAutoencoder, preprocess_with_cwt
 
 # 2. Load and preprocess data
 strain_data = load_your_data()
@@ -165,13 +165,13 @@ predictions = reconstruction_errors > threshold
 
 ```bash
 # Run the main CWT-LSTM autoencoder analysis
-python notebooks/cwt_lstm_autoencoder.py
+python gravitational_wave_hunter/models/cwt_lstm_autoencoder.py
 
 # Run comprehensive precision-recall analysis  
-python notebooks/precision_recall_analysis.py
+python examples/precision_recall_analysis.py
 
 # View saved plots without auto-closing
-python notebooks/view_precision_recall_plots.py
+python examples/view_precision_recall_plots.py
 ```
 
 ## 📈 Result Interpretation

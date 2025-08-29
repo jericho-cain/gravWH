@@ -303,7 +303,7 @@ def main():
     
     print(f"\n🎉 Example completed!")
     print(f"💡 This demonstrates the CWT-LSTM autoencoder approach for gravitational wave detection.")
-    print(f"📚 For full analysis, run: python notebooks/cwt_lstm_autoencoder.py")
+    print(f"📚 For full analysis, run: python gravitational_wave_hunter/models/cwt_lstm_autoencoder.py")
 
 if __name__ == "__main__":
     main()

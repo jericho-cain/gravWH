@@ -48,10 +48,10 @@ pip install PyWavelets  # For CWT functionality
 
 ```bash
 # Run the main CWT-LSTM autoencoder analysis
-python notebooks/cwt_lstm_autoencoder.py
+python gravitational_wave_hunter/models/cwt_lstm_autoencoder.py
 
 # Run comprehensive precision-recall analysis
-python notebooks/precision_recall_analysis.py
+python examples/precision_recall_analysis.py
 ```
 
 ### View Results

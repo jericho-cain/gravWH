@@ -10,6 +10,7 @@ from .cnn_lstm import CNNLSTM
 from .wavenet import WaveNet
 from .transformer import GWTransformer
 from .autoencoder import GWAutoencoder
+from .cwt_lstm_autoencoder import SimpleCWTAutoencoder
 from .base import BaseGWModel
 
 __all__ = [
@@ -17,5 +18,6 @@ __all__ = [
     "WaveNet",
     "GWTransformer", 
     "GWAutoencoder",
+    "SimpleCWTAutoencoder",
     "BaseGWModel",
 ]

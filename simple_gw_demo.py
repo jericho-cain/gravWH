@@ -210,3 +210,4 @@ print(f"• Demo completed successfully without freezing! 🚀")
 # Save model for notebook use
 torch.save(model.state_dict(), 'simple_gw_model.pth')
 print(f"💾 Model saved as 'simple_gw_model.pth'")
+

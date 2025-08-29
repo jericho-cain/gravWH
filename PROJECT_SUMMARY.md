@@ -128,3 +128,4 @@ This project demonstrates that:
 ---
 
 *Project completed with professional-grade results suitable for scientific publication and real-world astronomical applications.*
+

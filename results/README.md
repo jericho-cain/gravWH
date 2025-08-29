@@ -68,3 +68,4 @@ The **CWT-LSTM Autoencoder** approach represents a breakthrough by:
 4. **Novel application**: First use of this approach for gravitational wave detection
 
 These results demonstrate that modern deep learning can achieve the precision required for gravitational wave astronomy, opening new possibilities for cosmic discovery.
+

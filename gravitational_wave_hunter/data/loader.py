@@ -39,7 +39,7 @@ except ImportError:
     )
 
 from ..utils.config import Config
-from ..signal_processing.preprocessing import preprocess_strain_data
+from .preprocessing import preprocess_strain_data
 
 # Set up logging
 logger = logging.getLogger(__name__)

@@ -16,14 +16,14 @@ import numpy as np
 from torch.utils.data import DataLoader
 import matplotlib.pyplot as plt
 
-from .models.cnn_lstm import CNNLSTM
-from .models.wavenet import WaveNet
-from .models.transformer import GWTransformer
-from .models.autoencoder import GWAutoencoder
+from .models.cnn_lstm import CNNLSTMDetector
+from .models.wavenet import WaveNetDetector
+from .models.transformer import TransformerDetector
+from .models.autoencoder import AutoencoderDetector
 from .signal_processing.preprocessing import preprocess_strain_data
 from .visualization.plotting import plot_detection_results
-from .utils.config import Config
-from .utils.metrics import calculate_detection_metrics
+from .utils.config import get_default_config
+from .utils.metrics import detection_metrics
 
 # Set up logging
 logging.basicConfig(level=logging.INFO)

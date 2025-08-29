@@ -5,7 +5,7 @@ This module provides functions for cleaning, filtering, and preparing
 gravitational wave strain data for machine learning analysis.
 """
 
-from typing import Optional, Tuple, Union
+from typing import List, Optional, Tuple, Union
 import warnings
 import logging
 

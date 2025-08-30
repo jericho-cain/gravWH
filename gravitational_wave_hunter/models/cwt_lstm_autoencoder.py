@@ -803,6 +803,32 @@ def main():
     if 'snr_values' in results and len(results['snr_values']) > 0:
         print(f"   - snr_performance.png")
     
+    # Auto-update paper with new results
+    print(f"\n📄 Auto-updating paper...")
+    try:
+        import sys
+        import os
+        sys.path.append(os.path.join(os.path.dirname(__file__), '..', '..'))
+        from paper.scripts.update_results import update_from_model_results
+        
+        # Update paper with the key operating points
+        update_from_model_results(
+            precision=precision_90 if precision_90 is not None else precision[optimal_idx],
+            recall=recall_90 if recall_90 is not None else recall[optimal_idx],
+            auc=auc_score,
+            max_precision=max_precision,
+            max_precision_recall=max_precision_recall,
+            f1_precision=precision[optimal_idx],
+            f1_recall=recall[optimal_idx],
+            avg_precision=avg_precision
+        )
+        print(f"✅ Paper automatically updated with latest results!")
+        
+    except ImportError:
+        print(f"⚠️ Paper update system not found - results saved to plots only")
+    except Exception as e:
+        print(f"⚠️ Paper update failed: {e}")
+    
     print(f"\n🎉 Analysis Complete!")
     print(f"💡 Key Insights:")
     print(f"  • CWT captures frequency evolution of gravitational wave chirps")

@@ -45,7 +45,7 @@ ax.text(5, 3.6, 'CWT-LSTM Autoencoder for Advanced Signal Detection',
 
 # Add performance metrics in boxes
 metrics = [
-    ('🎯 92.3%', 'PRECISION', '#10b981'),
+    ('🎯 90.6%', 'PRECISION', '#10b981'),
     ('📈 67.6%', 'RECALL', '#3b82f6'), 
     ('⚡ 0.821', 'AUC SCORE', '#f59e0b'),
     ('🏆 0.788', 'AVG PRECISION', '#ef4444')

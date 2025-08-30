@@ -2,7 +2,7 @@
 
 ## Overview
 
-This guide explains our breakthrough approach to gravitational wave detection using **Continuous Wavelet Transform (CWT) combined with LSTM Autoencoders**. This method achieves professional-grade performance with **92.3% precision** and **67.6% recall** - exceeding LIGO detection requirements with excellent sensitivity.
+This guide explains our breakthrough approach to gravitational wave detection using **Continuous Wavelet Transform (CWT) combined with LSTM Autoencoders**. This method achieves professional-grade performance with **90.6% precision** and **67.6% recall** - exceeding LIGO detection requirements with excellent sensitivity.
 
 ## 🌟 Why This Approach Works
 
@@ -91,7 +91,7 @@ class SimpleCWTAutoencoder(nn.Module):
 |--------|-------|---------------|
 | **Average Precision** | 0.788 | Excellent separation (>0.7 is professional grade) |
 | **AUC Score** | 0.811 | Strong discrimination ability |
-| **Precision** | 92.3% | **EXCEEDS LIGO >90% requirement** |
+| **Precision** | 90.6% | **EXCEEDS LIGO >90% requirement** |
 | **Recall** | 67.6% | Catches most real signals |
 | **Balance** | Excellent | Optimal precision-sensitivity trade-off |
 | **AUC** | 0.821 | Strong discriminative power |
@@ -129,7 +129,7 @@ class SimpleCWTAutoencoder(nn.Module):
 
 ### Comparison to Real LIGO
 - **LIGO Requirements**: >90% precision for discoveries
-- **Our Model**: 92.3% precision with 67.6% recall - **EXCEEDS LIGO standards** with excellent sensitivity
+- **Our Model**: 90.6% precision with 67.6% recall - **EXCEEDS LIGO standards** with excellent sensitivity
 - **LIGO SNR Range**: 8-15 for typical detections
 - **Our Model**: Effective detection for SNR 10+ signals
 

@@ -4,7 +4,7 @@
 Use this for your GitHub repository description:
 
 ```
-🌌 CWT-LSTM Autoencoder for gravitational wave detection achieving 92.3% precision (exceeds LIGO >90% requirement). Features automated LaTeX paper generation, comprehensive docs, and unsupervised anomaly detection.
+🌌 CWT-LSTM Autoencoder for gravitational wave detection achieving 90.6% precision (exceeds LIGO >90% requirement). Features automated LaTeX paper generation, comprehensive docs, and unsupervised anomaly detection.
 ```
 
 ## Repository Topics/Tags

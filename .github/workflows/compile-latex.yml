@@ -23,9 +23,16 @@ jobs:
       with:
         root_file: main.tex
         working_directory: paper
-        compiler: pdflatex
-        args: -file-line-error -halt-on-error -interaction=nonstopmode
+        compiler: latexmk
+        args: -pdf -file-line-error -halt-on-error -interaction=nonstopmode
         extra_system_packages: "py-pygments"
+        pre_compile: |
+          # Check if iopart-num.bst exists, if not create a simple version
+          if [ ! -f "iopart-num.bst" ]; then
+            echo "Creating basic iopart-num.bst file..."
+            # Use unsrt as base and rename it
+            cp $(kpsewhich unsrt.bst) iopart-num.bst 2>/dev/null || echo "% Basic bibliography style" > iopart-num.bst
+          fi
         
     - name: Upload PDF artifact
       uses: actions/upload-artifact@v4

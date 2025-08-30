@@ -66,7 +66,7 @@ Check the `results/` folder for:
 
 ### Research Paper
 
-The repository includes an automated LaTeX paper generation system:
+The repository includes an automated LaTeX paper update system:
 - `paper/main.tex` - Complete research paper (LaTeX)
 - `paper/main.pdf` - Auto-generated PDF (via GitHub Actions)
 - `paper/sections/results.tex` - Dynamically updated results section
@@ -160,7 +160,7 @@ gravitational_wave_hunter/
 │       └── cwt_lstm_autoencoder.py # Main CWT-LSTM model
 ├── examples/                       # Analysis scripts  
 │   └── precision_recall_analysis.py # Performance analysis
-├── paper/                          # Automated research paper
+├── paper/                          # Research paper with auto-updates
 │   ├── main.tex                    # Complete LaTeX paper
 │   ├── main.pdf                    # Auto-generated PDF
 │   ├── sections/results.tex        # Auto-updating results

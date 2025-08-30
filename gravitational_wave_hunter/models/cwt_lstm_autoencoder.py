@@ -637,8 +637,126 @@ def main():
     plt.yticks([0, 1], ['True Noise', 'True Signal'])
     
     plt.tight_layout()
-    plt.savefig('cwt_lstm_autoencoder_results.png', dpi=150, bbox_inches='tight')
+    plt.savefig('results/cwt_lstm_autoencoder_results.png', dpi=150, bbox_inches='tight')
     plt.show()
+    
+    # Generate standalone publication-quality figures
+    print("\n📊 Generating individual publication plots...")
+    
+    # Extract data from results for individual plots
+    test_predictions = results['predictions']
+    test_labels = results['labels']
+    test_scores = results['reconstruction_errors']
+    
+    from sklearn.metrics import precision_recall_curve, roc_curve, auc
+    
+    # Figure 1: Precision-Recall Curve
+    precision, recall, pr_thresholds = precision_recall_curve(test_labels, test_scores)
+    avg_precision = auc(recall, precision)
+    
+    # Find optimal threshold (maximize F1)
+    f1_scores = 2 * (precision * recall) / (precision + recall + 1e-8)
+    optimal_idx = np.argmax(f1_scores)
+    optimal_threshold = pr_thresholds[optimal_idx] if optimal_idx < len(pr_thresholds) else pr_thresholds[-1]
+    
+    fig_pr, ax_pr = plt.subplots(figsize=(8, 6))
+    ax_pr.plot(recall, precision, 'b-', linewidth=2.5, 
+               label=f'AUPRC = {avg_precision:.3f}')
+    ax_pr.plot(recall[optimal_idx], precision[optimal_idx], 
+               'ro', markersize=8, label=f'Optimal (F1={f1_scores[optimal_idx]:.3f})')
+    ax_pr.plot([0, 1], [0.5, 0.5], 'k--', alpha=0.5, label='Random Classifier')
+    ax_pr.set_xlabel('Recall', fontsize=14)
+    ax_pr.set_ylabel('Precision', fontsize=14)
+    ax_pr.set_title('Precision-Recall Curve', fontsize=16)
+    ax_pr.legend(fontsize=12)
+    ax_pr.grid(True, alpha=0.3)
+    ax_pr.set_xlim(0, 1)
+    ax_pr.set_ylim(0, 1)
+    plt.tight_layout()
+    plt.savefig('results/precision_recall_curve.png', dpi=300, bbox_inches='tight')
+    plt.close()
+    
+    # Figure 2: ROC Curve
+    fpr, tpr, roc_thresholds = roc_curve(test_labels, test_scores)
+    auc_score = auc(fpr, tpr)
+    
+    fig_roc, ax_roc = plt.subplots(figsize=(8, 6))
+    ax_roc.plot(fpr, tpr, 'b-', linewidth=2.5, label=f'AUC-ROC = {auc_score:.3f}')
+    ax_roc.plot([0, 1], [0, 1], 'k--', alpha=0.5, label='Random Classifier')
+    ax_roc.set_xlabel('False Positive Rate', fontsize=14)
+    ax_roc.set_ylabel('True Positive Rate', fontsize=14)
+    ax_roc.set_title('ROC Curve', fontsize=16)
+    ax_roc.legend(fontsize=12)
+    ax_roc.grid(True, alpha=0.3)
+    ax_roc.set_xlim(0, 1)
+    ax_roc.set_ylim(0, 1)
+    plt.tight_layout()
+    plt.savefig('results/roc_curve.png', dpi=300, bbox_inches='tight')
+    plt.close()
+    
+    # Figure 3: SNR Performance (if SNR data exists)
+    if 'snr_values' in results and len(results['snr_values']) > 0:
+        snr_data = results['snr_values']
+        
+        # Group performance by SNR bins
+        snr_bins = np.arange(8, 26, 2)
+        snr_centers = (snr_bins[:-1] + snr_bins[1:]) / 2
+        precision_by_snr = []
+        recall_by_snr = []
+        f1_by_snr = []
+        
+        for i in range(len(snr_bins)-1):
+            mask = (snr_data >= snr_bins[i]) & (snr_data < snr_bins[i+1])
+            if np.sum(mask) > 0:
+                bin_labels = test_labels[mask]
+                bin_predictions = test_predictions[mask]
+                
+                if len(np.unique(bin_labels)) > 1:  # Both classes present
+                    from sklearn.metrics import precision_score, recall_score, f1_score
+                    prec = precision_score(bin_labels, bin_predictions, zero_division=0)
+                    rec = recall_score(bin_labels, bin_predictions, zero_division=0)
+                    f1 = f1_score(bin_labels, bin_predictions, zero_division=0)
+                else:
+                    prec = rec = f1 = 0
+                    
+                precision_by_snr.append(prec)
+                recall_by_snr.append(rec)
+                f1_by_snr.append(f1)
+            else:
+                precision_by_snr.append(0)
+                recall_by_snr.append(0)
+                f1_by_snr.append(0)
+        
+        fig_snr, ax_snr = plt.subplots(figsize=(10, 6))
+        ax_snr.plot(snr_centers, precision_by_snr, 'b-', linewidth=2.5, 
+                    label='Precision', marker='o', markersize=6)
+        ax_snr.plot(snr_centers, recall_by_snr, 'r-', linewidth=2.5, 
+                    label='Recall', marker='s', markersize=6)
+        ax_snr.plot(snr_centers, f1_by_snr, 'g-', linewidth=2.5, 
+                    label='F1-Score', marker='^', markersize=6)
+        
+        # Add performance regions
+        ax_snr.axvspan(15, 25, alpha=0.2, color='green', label='High SNR (>15)')
+        ax_snr.axvspan(10, 15, alpha=0.2, color='orange', label='Moderate SNR (10-15)')
+        ax_snr.axvspan(8, 10, alpha=0.2, color='red', label='Threshold SNR (<10)')
+        
+        ax_snr.set_xlabel('Signal-to-Noise Ratio (SNR)', fontsize=14)
+        ax_snr.set_ylabel('Detection Performance', fontsize=14)
+        ax_snr.set_title('CWT-LSTM Autoencoder Performance vs Signal-to-Noise Ratio', fontsize=16)
+        ax_snr.legend(fontsize=12, loc='lower right')
+        ax_snr.grid(True, alpha=0.3)
+        ax_snr.set_ylim(0, 1.05)
+        plt.tight_layout()
+        plt.savefig('results/snr_performance.png', dpi=300, bbox_inches='tight')
+        plt.close()
+        
+        print(f"✅ SNR performance plot saved")
+    
+    print(f"✅ Publication plots saved to results/ directory:")
+    print(f"   - precision_recall_curve.png")
+    print(f"   - roc_curve.png")
+    if 'snr_values' in results and len(results['snr_values']) > 0:
+        print(f"   - snr_performance.png")
     
     print(f"\n🎉 Analysis Complete!")
     print(f"💡 Key Insights:")

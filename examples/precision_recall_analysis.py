@@ -523,9 +523,89 @@ def main():
     else:
         print(f"⚠️ May need threshold tuning for specific use case")
     
-    # Save results
-    plt.savefig('precision_recall_comprehensive_analysis.png', dpi=150, bbox_inches='tight')
+    # Save comprehensive analysis
+    plt.savefig('results/precision_recall_comprehensive_analysis.png', dpi=150, bbox_inches='tight')
     plt.show()
+    
+    # Generate standalone publication-quality figures
+    print("\n📊 Generating individual publication plots...")
+    
+    # Figure 1: Precision-Recall Curve
+    fig_pr, ax_pr = plt.subplots(figsize=(8, 6))
+    ax_pr.plot(pr_results['recall'], pr_results['precision'], 'b-', linewidth=2.5, 
+               label=f'AUPRC = {pr_results["avg_precision"]:.3f}')
+    ax_pr.plot(pr_results['optimal_recall'], pr_results['optimal_precision'], 
+               'ro', markersize=8, label=f'Optimal (F1={pr_results["optimal_f1"]:.3f})')
+    ax_pr.plot([0, 1], [0.5, 0.5], 'k--', alpha=0.5, label='Random Classifier')
+    ax_pr.set_xlabel('Recall', fontsize=14)
+    ax_pr.set_ylabel('Precision', fontsize=14)
+    ax_pr.set_title('Precision-Recall Curve', fontsize=16)
+    ax_pr.legend(fontsize=12)
+    ax_pr.grid(True, alpha=0.3)
+    ax_pr.set_xlim(0, 1)
+    ax_pr.set_ylim(0, 1)
+    plt.tight_layout()
+    plt.savefig('results/precision_recall_curve.png', dpi=300, bbox_inches='tight')
+    plt.close()
+    
+    # Figure 2: ROC Curve  
+    fig_roc, ax_roc = plt.subplots(figsize=(8, 6))
+    ax_roc.plot(fpr, tpr, 'b-', linewidth=2.5, label=f'AUC-ROC = {auc_score:.3f}')
+    ax_roc.plot([0, 1], [0, 1], 'k--', alpha=0.5, label='Random Classifier')
+    ax_roc.set_xlabel('False Positive Rate', fontsize=14)
+    ax_roc.set_ylabel('True Positive Rate', fontsize=14)
+    ax_roc.set_title('ROC Curve', fontsize=16)
+    ax_roc.legend(fontsize=12)
+    ax_roc.grid(True, alpha=0.3)
+    ax_roc.set_xlim(0, 1)
+    ax_roc.set_ylim(0, 1)
+    plt.tight_layout()
+    plt.savefig('results/roc_curve.png', dpi=300, bbox_inches='tight')
+    plt.close()
+    
+    # Figure 3: SNR Performance (if SNR data exists)
+    if len(snr_breakdown) > 0:
+        fig_snr, ax_snr = plt.subplots(figsize=(10, 6))
+        
+        snr_values = sorted(snr_breakdown.keys())
+        precision_values = [snr_breakdown[snr]['precision'] for snr in snr_values]
+        recall_values = [snr_breakdown[snr]['recall'] for snr in snr_values]
+        f1_values = [snr_breakdown[snr]['f1'] for snr in snr_values]
+        
+        ax_snr.plot(snr_values, precision_values, 'b-', linewidth=2.5, 
+                    label='Precision', marker='o', markersize=6)
+        ax_snr.plot(snr_values, recall_values, 'r-', linewidth=2.5, 
+                    label='Recall', marker='s', markersize=6)
+        ax_snr.plot(snr_values, f1_values, 'g-', linewidth=2.5, 
+                    label='F1-Score', marker='^', markersize=6)
+        
+        # Add performance regions
+        if max(snr_values) >= 15:
+            ax_snr.axvspan(15, max(snr_values), alpha=0.2, color='green', label='High SNR (>15)')
+        if 10 in snr_values and max(snr_values) >= 15:
+            ax_snr.axvspan(10, 15, alpha=0.2, color='orange', label='Moderate SNR (10-15)')
+        if min(snr_values) <= 10:
+            ax_snr.axvspan(min(snr_values), min(10, max(snr_values)), alpha=0.2, color='red', label='Threshold SNR (<10)')
+        
+        ax_snr.set_xlabel('Signal-to-Noise Ratio (SNR)', fontsize=14)
+        ax_snr.set_ylabel('Detection Performance', fontsize=14)
+        ax_snr.set_title('CWT-LSTM Autoencoder Performance vs Signal-to-Noise Ratio', fontsize=16)
+        ax_snr.legend(fontsize=12, loc='lower right')
+        ax_snr.grid(True, alpha=0.3)
+        ax_snr.set_ylim(0, 1.05)
+        plt.tight_layout()
+        plt.savefig('results/snr_performance.png', dpi=300, bbox_inches='tight')
+        plt.close()
+        
+        print(f"✅ SNR performance plot saved")
+    else:
+        print("⚠️ No SNR data available for standalone plot")
+    
+    print(f"✅ Publication plots saved to results/ directory:")
+    print(f"   - precision_recall_curve.png")
+    print(f"   - roc_curve.png") 
+    if len(snr_breakdown) > 0:
+        print(f"   - snr_performance.png")
     
     print(f"\n🎉 Analysis complete!")
     print(f"📁 Results saved to 'precision_recall_comprehensive_analysis.png'")

@@ -1,112 +1,118 @@
 #!/usr/bin/env python3
 """
-Generate a professional GitHub repository banner for Gravitational Wave Hunter
+Generate a clean, professional GitHub banner for Gravitational Wave Hunter
+Fixed version with proper text placement and no random equations
 """
 
 import matplotlib.pyplot as plt
+import matplotlib.patches as patches
+from matplotlib.patches import Rectangle, FancyBboxPatch
 import numpy as np
-from matplotlib.patches import Rectangle
-import matplotlib.patches as mpatches
 
-# Create figure with specific GitHub banner dimensions (1280x640 recommended)
-fig, ax = plt.subplots(figsize=(16, 8), dpi=80)
-
-# Set dark space background
-fig.patch.set_facecolor('#0d1117')
-ax.set_facecolor('#0d1117')
-
-# Create gradient background effect
-x = np.linspace(0, 10, 100)
-y = np.linspace(0, 5, 50)
-X, Y = np.meshgrid(x, y)
-
-# Gravitational wave pattern (chirp signal)
-def gravitational_wave(x, y, t=0):
-    # Frequency increases over time (chirp)
-    freq = 2 + 0.5 * x  # Frequency sweep
-    amplitude = np.exp(-0.1 * x) * np.exp(-0.5 * (y - 2.5)**2)  # Gaussian envelope
-    return amplitude * np.sin(2 * np.pi * freq * x + t)
-
-# Generate wave pattern
-wave = gravitational_wave(X, Y)
-
-# Plot the gravitational wave as a subtle background
-contour = ax.contourf(X, Y, wave, levels=20, cmap='plasma', alpha=0.3)
-
-# Add main title
-ax.text(5, 4.2, '🌌 GRAVITATIONAL WAVE HUNTER', 
-        fontsize=48, fontweight='bold', ha='center', va='center',
-        color='white', family='monospace')
-
-# Add subtitle
-ax.text(5, 3.6, 'CWT-LSTM Autoencoder for Advanced Signal Detection', 
-        fontsize=24, ha='center', va='center',
-        color='#7c3aed', family='sans-serif')
-
-# Add performance metrics in boxes
-metrics = [
-    ('🎯 90.6%', 'PRECISION', '#10b981'),
-    ('📈 67.6%', 'RECALL', '#3b82f6'), 
-    ('⚡ 0.821', 'AUC SCORE', '#f59e0b'),
-    ('🏆 0.788', 'AVG PRECISION', '#ef4444')
-]
-
-start_x = 1.5
-for i, (value, label, color) in enumerate(metrics):
-    x_pos = start_x + i * 2
-    
-    # Background box
-    rect = Rectangle((x_pos - 0.7, 1.8), 1.4, 1.2, 
-                    facecolor=color, alpha=0.2, edgecolor=color, linewidth=2)
-    ax.add_patch(rect)
-    
-    # Metric value
-    ax.text(x_pos, 2.6, value, fontsize=20, fontweight='bold', 
-           ha='center', va='center', color=color)
-    
-    # Metric label
-    ax.text(x_pos, 2.2, label, fontsize=12, fontweight='bold',
-           ha='center', va='center', color='white')
-
-# Add technology badges
-technologies = ['PyTorch', 'CWT', 'LSTM', 'Anomaly Detection', 'LIGO Standard']
-badge_colors = ['#ee4c2c', '#7c3aed', '#10b981', '#f59e0b', '#3b82f6']
-
-for i, (tech, color) in enumerate(zip(technologies, badge_colors)):
-    x_pos = 1 + i * 1.6
-    y_pos = 0.8
-    
-    # Badge background
-    rect = Rectangle((x_pos - 0.4, y_pos - 0.2), 0.8, 0.4,
-                    facecolor=color, alpha=0.8, edgecolor='white', linewidth=1)
-    ax.add_patch(rect)
-    
-    # Badge text
-    ax.text(x_pos, y_pos, tech, fontsize=10, fontweight='bold',
-           ha='center', va='center', color='white')
-
-# Add wave equation (decorative)
-ax.text(8.5, 1.2, r'$h(t) = A \cos(2\pi f(t) t + \phi)$', 
-        fontsize=16, ha='center', va='center', color='#7c3aed',
-        bbox=dict(boxstyle="round,pad=0.3", facecolor='#0d1117', edgecolor='#7c3aed'))
-
-# Add GitHub link hint
-ax.text(5, 0.3, 'github.com/jericho-cain/gravWH', 
-        fontsize=14, ha='center', va='center', color='#6b7280',
-        style='italic')
-
-# Clean up axes
-ax.set_xlim(0, 10)
-ax.set_ylim(0, 5)
+# Set up the figure with proper GitHub banner dimensions
+fig, ax = plt.subplots(1, 1, figsize=(12.8, 6.4), dpi=100)
+ax.set_xlim(0, 1280)
+ax.set_ylim(0, 640)
 ax.axis('off')
 
-# Tight layout
+# Background gradient (dark space theme)
+background = np.linspace(0, 1, 640)
+for i, alpha in enumerate(background):
+    ax.axhline(y=i, color='#0d1117', alpha=0.1 + 0.9 * alpha)
+
+# Add subtle star field
+np.random.seed(42)  # For reproducible star positions
+star_x = np.random.uniform(0, 1280, 150)
+star_y = np.random.uniform(0, 640, 150)
+star_sizes = np.random.uniform(0.5, 2, 150)
+star_alphas = np.random.uniform(0.3, 0.8, 150)
+
+for x, y, size, alpha in zip(star_x, star_y, star_sizes, star_alphas):
+    ax.scatter(x, y, s=size, c='white', alpha=alpha, marker='*')
+
+# Main title
+ax.text(640, 520, '🌌 Gravitational Wave Hunter', 
+        fontsize=48, fontweight='bold', ha='center', va='center',
+        color='white', fontfamily='sans-serif')
+
+# Subtitle
+ax.text(640, 460, 'CWT-LSTM Autoencoder for Signal Detection', 
+        fontsize=28, ha='center', va='center',
+        color='#58a6ff', fontweight='medium', fontfamily='sans-serif')
+
+# Performance metrics box
+metrics_box = FancyBboxPatch((200, 280), 880, 120, 
+                            boxstyle="round,pad=0.02", 
+                            facecolor='#21262d', 
+                            edgecolor='#30363d', 
+                            linewidth=2)
+ax.add_patch(metrics_box)
+
+# Metrics text
+ax.text(640, 340, '90.6% Precision • 67.6% Recall • AUC: 0.821', 
+        fontsize=24, ha='center', va='center',
+        color='white', fontweight='bold', fontfamily='sans-serif')
+
+# Key features
+ax.text(640, 300, 'Unsupervised Detection • Template-Free Discovery', 
+        fontsize=20, ha='center', va='center',
+        color='#7c3aed', fontweight='medium', fontfamily='sans-serif')
+
+# LIGO-inspired detector visualization (simplified)
+detector_x = 1000
+detector_y = 150
+detector_size = 80
+
+# Detector arms
+arm_length = 60
+ax.plot([detector_x-arm_length, detector_x+arm_length], [detector_y, detector_y], 
+        color='#58a6ff', linewidth=4, solid_capstyle='round')
+ax.plot([detector_x, detector_x], [detector_y-arm_length, detector_y+arm_length], 
+        color='#58a6ff', linewidth=4, solid_capstyle='round')
+
+# Central detector
+detector_circle = plt.Circle((detector_x, detector_y), 15, 
+                           facecolor='#21262d', edgecolor='#58a6ff', linewidth=3)
+ax.add_patch(detector_circle)
+
+# Performance graph (simplified)
+graph_x = 200
+graph_y = 150
+graph_width = 200
+graph_height = 80
+
+# Graph background
+graph_bg = Rectangle((graph_x, graph_y), graph_width, graph_height, 
+                    facecolor='#21262d', edgecolor='#30363d', linewidth=2)
+ax.add_patch(graph_bg)
+
+# Simple precision-recall curve
+x_curve = np.linspace(0, 1, 50)
+y_curve = 0.9 * (1 - np.exp(-3 * x_curve))  # Approximate PR curve
+curve_x = graph_x + 20 + x_curve * (graph_width - 40)
+curve_y = graph_y + 20 + y_curve * (graph_height - 40)
+ax.plot(curve_x, curve_y, color='#7c3aed', linewidth=3)
+
+# Graph labels
+ax.text(graph_x + graph_width//2, graph_y - 20, 'Performance', 
+        fontsize=16, ha='center', va='center',
+        color='#58a6ff', fontweight='medium', fontfamily='sans-serif')
+
+# Bottom tagline
+ax.text(640, 80, 'Advanced Machine Learning for Gravitational Wave Astronomy', 
+        fontsize=18, ha='center', va='center',
+        color='#8b949e', fontweight='medium', fontfamily='sans-serif')
+
+# Save the banner
 plt.tight_layout()
+plt.savefig('assets/github_banner.png', 
+            bbox_inches='tight', 
+            dpi=100, 
+            facecolor='#0d1117',
+            edgecolor='none')
+plt.close()
 
-# Save as high-quality PNG
-plt.savefig('github_banner.png', dpi=200, bbox_inches='tight', 
-           facecolor='#0d1117', edgecolor='none')
-
-print("🎨 GitHub banner created: github_banner.png")
-print("📏 Dimensions: 1280x640 (GitHub recommended)")
-print("🎯 Features: Dark theme, metrics, tech stack, wave pattern")
+print("✅ New GitHub banner generated: assets/github_banner.png")
+print("📏 Dimensions: 1280x640 pixels (GitHub standard)")
+print("🎨 Clean design with no text overflow or random equations")
+print("🌌 Professional space theme with proper text placement")

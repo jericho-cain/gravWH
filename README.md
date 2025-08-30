@@ -1,5 +1,7 @@
 # 🌌 Gravitational Wave Hunter
 
+![GitHub Banner](assets/github_banner.png)
+
 **State-of-the-art gravitational wave detection using Continuous Wavelet Transform (CWT) and LSTM Autoencoders.**
 
 [![Python 3.11+](https://img.shields.io/badge/python-3.11+-blue.svg)](https://www.python.org/downloads/)

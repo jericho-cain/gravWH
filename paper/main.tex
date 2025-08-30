@@ -279,9 +279,29 @@ While validation on real LIGO data remains essential, the demonstrated performan
 
 Future work will focus on real data validation, multi-detector analysis, and integration with operational detection pipelines to fully realize the potential of this approach for advancing gravitational wave astronomy.
 
+\section{Data and Code Availability}
+
+All code, data generation scripts, trained models, and results presented in this study are publicly available for reproducibility and further research. The complete implementation is hosted as an open-source repository at:
+
+\begin{center}
+\url{https://github.com/jericho-cain/gravWH}
+\end{center}
+
+This repository includes:
+\begin{itemize}
+\item Complete CWT-LSTM autoencoder implementation in PyTorch
+\item Data generation and preprocessing pipelines for synthetic gravitational wave signals
+\item Training and evaluation scripts with hyperparameter configurations
+\item Reproducible results, figures, and performance metrics
+\item Comprehensive documentation and usage examples
+\item Automated LaTeX paper generation system
+\end{itemize}
+
+The repository follows open science best practices with version control, automated testing, and continuous integration workflows. All experiments can be reproduced using the provided code and configuration files, ensuring full transparency and enabling community validation and extension of this work.
+
 \section{Acknowledgments}
 
-The author thanks the gravitational wave community for making LIGO data and analysis tools publicly available through the Gravitational Wave Open Science Center. Special appreciation goes to the developers of PyTorch, PyWavelets, and other open-source libraries that enabled this research. The author acknowledges Portland Community College for providing a supportive environment for physics education and research pursuits, and Adobe for fostering innovation and scientific exploration.
+The author thanks the gravitational wave community for making LIGO data and analysis tools publicly available through the Gravitational Wave Open Science Center. Special appreciation goes to the developers of PyTorch, PyWavelets, and other open-source libraries that enabled this research.
 
 This research made use of computational resources provided by NVIDIA through their academic GPU programs. The author also acknowledges the LIGO Scientific Collaboration and Virgo Collaboration for their groundbreaking work in gravitational wave detection that motivated and informed this study.
 

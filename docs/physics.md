@@ -1,8 +1,8 @@
-# 🌌 Gravitational Wave Physics: A Complete Guide
+# Gravitational Wave Physics: A Complete Guide
 
 *Understanding the physics behind gravitational wave detection for engineers, data scientists, and curious minds.*
 
-## 📚 Table of Contents
+## Table of Contents
 - [What Are Gravitational Waves?](#what-are-gravitational-waves)
 - [How We Detect Them](#how-we-detect-them)
 - [Signal Characteristics](#signal-characteristics)
@@ -13,7 +13,7 @@
 
 ## What Are Gravitational Waves?
 
-### 🌊 The Basics
+### The Basics
 Gravitational waves are **ripples in spacetime itself** - imagine throwing a stone into a pond, but instead of water ripples, you get ripples in the fabric of space and time.
 
 ```
@@ -22,12 +22,12 @@ Gravitational     ~~~∿~~~∿~~~∿~~~∿~~~
 Wave Passing:     (space stretches and squeezes)
 ```
 
-### ⚡ Einstein's Prediction (1915)
+### Einstein's Prediction (1915)
 - Albert Einstein's General Relativity predicted these waves
 - **Took 100 years** to detect them directly (2015)
 - Einstein himself thought they'd be too weak to ever measure!
 
-### 🏃‍♂️ Key Properties
+### Key Properties
 - **Speed**: Travel at the speed of light (299,792,458 m/s)
 - **Amplitude**: Incredibly tiny - smaller than 1/10,000th the width of a proton
 - **Frequency**: Audio range (20-2000 Hz) - you could literally "hear" them!
@@ -37,7 +37,7 @@ Wave Passing:     (space stretches and squeezes)
 
 ## How We Detect Them?
 
-### 🔬 LIGO: The World's Most Sensitive Ruler
+### LIGO: The World's Most Sensitive Ruler
 
 **LIGO** (Laser Interferometer Gravitational-Wave Observatory) works like this:
 
@@ -58,7 +58,7 @@ Wave Passing:     (space stretches and squeezes)
 3. **Light travel time** changes by tiny amounts
 4. **Interference pattern** changes → we detect the wave!
 
-### 🎯 Incredible Sensitivity
+### Incredible Sensitivity
 - Measures changes of **10⁻¹⁹ meters** (0.0000000000000000001 m)
 - That's **1/10,000th the width of a proton**
 - Like measuring the distance to the nearest star to within the width of a human hair!
@@ -86,7 +86,7 @@ Frequency
      seconds to hours    milliseconds
 ```
 
-### 📊 Signal Evolution
+### Signal Evolution
 1. **Inspiral Phase** (hours to seconds):
    - Black holes spiral inward
    - Frequency slowly increases
@@ -112,7 +112,7 @@ Where larger masses → lower frequencies, smaller masses → higher frequencies
 
 ## Detection Challenges
 
-### 🌪️ Challenge 1: Noise
+### Challenge 1: Noise
 **Problem**: Gravitational wave signals are buried in noise that's **millions of times stronger**.
 
 **Sources of Noise**:
@@ -123,19 +123,19 @@ Where larger masses → lower frequencies, smaller masses → higher frequencies
 
 **Solution**: Advanced filtering and pattern recognition (our ML approach!)
 
-### ⚡ Challenge 2: Transient Nature
+### Challenge 2: Transient Nature
 **Problem**: Signals last only 0.1 to 100 seconds
 - **Merger events**: ~1 second total
 - **Must detect in real-time** for follow-up observations
 - **No second chances** - each event is unique
 
-### 🎯 Challenge 3: Extreme Rarity
+### Challenge 3: Extreme Rarity
 **Problem**: Detectable events are incredibly rare
 - **~1 per week** for current LIGO sensitivity
 - **False alarms** can waste expensive telescope time
 - **Must be >90% confident** before claiming discovery
 
-### 🔍 Challenge 4: Unknown Signals
+### Challenge 4: Unknown Signals
 **Problem**: New physics might produce unknown signal types
 - **Current methods**: Look for specific templates
 - **Our approach**: Detect any anomaly in noise patterns
@@ -145,21 +145,21 @@ Where larger masses → lower frequencies, smaller masses → higher frequencies
 
 ## Why Machine Learning Helps
 
-### 🤖 Traditional Approach: Matched Filtering
+### Traditional Approach: Matched Filtering
 ```
 Known Signal Template + Data → Correlation → Detection
 ```
 **Pros**: Optimal for known signals
 **Cons**: Only finds signals that match templates
 
-### 🧠 Our ML Approach: Anomaly Detection
+### Our ML Approach: Anomaly Detection
 ```
 Learn Normal Noise → Find Anything Unusual → Discovery!
 ```
 **Pros**: Can find unknown signal types
 **Cons**: Must carefully tune to avoid false alarms
 
-### 🌊 Why CWT (Continuous Wavelet Transform)?
+### Why CWT (Continuous Wavelet Transform)?
 Perfect for gravitational waves because:
 
 1. **Time-Frequency Analysis**: Shows both when and what frequency
@@ -177,7 +177,7 @@ Time-Frequency:
           (shows the chirp pattern clearly!)
 ```
 
-### 🎯 Why LSTM Autoencoders?
+### Why LSTM Autoencoders?
 Perfect for this problem because:
 
 1. **Temporal Dependencies**: Understands time evolution
@@ -189,19 +189,19 @@ Perfect for this problem because:
 
 ## Real-World Impact
 
-### 🌟 Scientific Breakthroughs Enabled
+### Scientific Breakthroughs Enabled
 - **Confirmed Einstein's predictions** (Nobel Prize 2017)
 - **New field**: Gravitational wave astronomy
 - **Multi-messenger astronomy**: Combined with optical/gamma-ray observations
 - **Fundamental physics**: Tests of General Relativity
 
-### 🔭 What We've Learned
+### What We've Learned
 - **Black hole mergers** are common in the universe
 - **Neutron star mergers** create gold and platinum
 - **Black hole spins** and masses from stellar evolution
 - **Universe expansion rate** from independent measurements
 
-### 🚀 Future Discoveries
+### Future Discoveries
 Our unsupervised ML approach could potentially discover:
 - **Cosmic strings** (1D defects in spacetime)
 - **Primordial black holes** (from the early universe)
@@ -214,7 +214,7 @@ Our unsupervised ML approach could potentially discover:
 
 Think of gravitational wave detection like:
 
-### 📡 Signal Processing Problem
+### Signal Processing Problem
 ```python
 # Similar to audio processing
 raw_audio + noise → filter → feature_extraction → pattern_recognition
@@ -223,20 +223,20 @@ raw_audio + noise → filter → feature_extraction → pattern_recognition
 strain_data + noise → preprocessing → CWT → LSTM_autoencoder
 ```
 
-### 🎯 Machine Learning Problem
+### Machine Learning Problem
 - **Input**: Time-frequency spectrograms (like audio spectrograms)
 - **Task**: Anomaly detection (is this normal noise or something unusual?)
 - **Challenge**: Extremely imbalanced data (99.99% noise, 0.01% signals)
 - **Metric**: Precision critical (false alarms are expensive)
 
-### ⚡ Real-Time Constraints
+### Real-Time Constraints
 - **Latency**: Must detect within minutes for telescope follow-up
 - **Throughput**: Continuous 24/7 data stream processing
 - **Reliability**: Cannot miss potentially historic discoveries
 
 ---
 
-## 💡 Key Takeaways
+## Key Takeaways
 
 1. **Gravitational waves** are ripples in spacetime from cosmic collisions
 2. **Detection** requires measuring changes smaller than subatomic particles
@@ -248,15 +248,15 @@ strain_data + noise → preprocessing → CWT → LSTM_autoencoder
 
 ## 📖 Further Reading
 
-### 📚 Beginner Resources
+### Beginner Resources
 - [LIGO Educational Resources](https://www.ligo.caltech.edu/page/educational-resources)
 - [Gravitational Wave Open Science Center](https://www.gw-openscience.org/)
 
-### 🔬 Technical Papers
+### Technical Papers
 - Abbott et al. (2016) - "Observation of Gravitational Waves from a Binary Black Hole Merger"
 - Our paper: "CWT-LSTM Autoencoder: A Novel Approach for Gravitational Wave Detection"
 
-### 🎥 Visualizations
+### Visualizations
 - [LIGO Chirp Audio](https://www.ligo.caltech.edu/detection) - Hear the actual gravitational waves!
 - [Black Hole Collision Simulation](https://www.youtube.com/watch?v=S4_hMgetcu0)
 

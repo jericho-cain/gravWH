@@ -1,8 +1,8 @@
-# 🔬 CWT-LSTM Autoencoder: Technical Algorithm Guide
+# CWT-LSTM Autoencoder: Technical Algorithm Guide
 
 *Deep dive into the algorithms, mathematics, and implementation details.*
 
-## 📚 Table of Contents
+## Table of Contents
 - [Algorithm Overview](#algorithm-overview)
 - [Continuous Wavelet Transform](#continuous-wavelet-transform)
 - [LSTM Autoencoder Architecture](#lstm-autoencoder-architecture)
@@ -14,14 +14,14 @@
 
 ## Algorithm Overview
 
-### 🎯 Core Concept
+###  Core Concept
 The CWT-LSTM Autoencoder uses **unsupervised anomaly detection** to identify gravitational wave signals:
 
 1. **Learn normal patterns**: Train autoencoder on noise-only data
 2. **Detect anomalies**: High reconstruction error indicates gravitational waves
 3. **Time-frequency preprocessing**: CWT captures chirp evolution optimally
 
-### 📊 Pipeline Architecture
+###  Pipeline Architecture
 ```
 Raw Strain Data (2048 samples, 512 Hz)
     ↓ Preprocessing
@@ -38,7 +38,7 @@ Detection Decision (0/1)
 
 ## Continuous Wavelet Transform
 
-### 🌊 Mathematical Foundation
+###  Mathematical Foundation
 
 The CWT transforms time-series data into time-frequency representation:
 
@@ -66,7 +66,7 @@ We use the **Morlet wavelet** optimized for gravitational wave analysis:
 - **ω₀ = 6**: Balance between time and frequency resolution
 - **Chirp-like shape**: Naturally matches gravitational wave morphology
 
-### 📈 Scale Selection
+###  Scale Selection
 Logarithmically spaced scales covering LIGO's sensitive frequency band:
 
 ```python
@@ -111,7 +111,7 @@ def compute_cwt(strain_data, fs=512):
     return scalogram
 ```
 
-### 🎯 Why CWT for Gravitational Waves?
+###  Why CWT for Gravitational Waves?
 
 1. **Chirp Evolution**: Gravitational waves sweep from low to high frequency
 2. **Time Localization**: Merger happens in milliseconds
@@ -168,7 +168,7 @@ h_t = o_t * tanh(C_t)                    \text{ (Hidden state)}
 - **Gradient flow**: Avoids vanishing gradients for long sequences
 - **Selective memory**: Forget gate removes irrelevant noise information
 
-### 🏗️ Architecture Choices
+###  Architecture Choices
 
 **Encoder Design**:
 ```python
@@ -195,7 +195,7 @@ Linear(128 → 32)                      # Output layer
 - **Progressive compression**: Gradual dimensionality reduction
 - **Temporal coherence**: Maintains sequence relationships
 
-### 🎯 Loss Function
+###  Loss Function
 
 **Mean Squared Error** between input and reconstruction:
 
@@ -232,7 +232,7 @@ training_data = {
 # Gravitational waves will have high reconstruction error
 ```
 
-### 📊 Data Generation
+###  Data Generation
 
 **Synthetic Noise**:
 ```python
@@ -305,7 +305,7 @@ for epoch in range(epochs):
 
 ## Detection Pipeline
 
-### 🔍 Anomaly Detection Strategy
+###  Anomaly Detection Strategy
 
 Once trained, the model detects gravitational waves through reconstruction error analysis:
 
@@ -332,7 +332,7 @@ def detect_gravitational_waves(model, test_data, threshold):
     return predictions, errors
 ```
 
-### 📈 Threshold Optimization
+###  Threshold Optimization
 
 **Precision-Recall Analysis**:
 ```python
@@ -360,7 +360,7 @@ def optimize_threshold(errors, true_labels):
     return optimal_threshold, precisions, recalls
 ```
 
-### 🎯 Operating Points
+###  Operating Points
 
 We define multiple operating points for different use cases:
 
@@ -391,7 +391,7 @@ operating_points = {
 
 ## Performance Optimization
 
-### ⚡ Computational Efficiency
+###  Computational Efficiency
 
 **CWT Optimization**:
 ```python
@@ -422,7 +422,7 @@ scaler.scale(loss).backward()
 scaler.step(optimizer)
 ```
 
-### 📊 Memory Management
+###  Memory Management
 
 **Gradient Checkpointing**:
 ```python
@@ -439,7 +439,7 @@ max_batch_size = find_max_batch_size(model, gpu_memory=10e9)
 dataloader = DataLoader(dataset, batch_size=max_batch_size)
 ```
 
-### 🎯 Hyperparameter Tuning
+###  Hyperparameter Tuning
 
 **Grid Search Strategy**:
 ```python
@@ -454,7 +454,7 @@ best_params = grid_search_cv(model_class, param_grid,
                             cv_folds=5, metric='f1_score')
 ```
 
-### 📈 Performance Monitoring
+###  Performance Monitoring
 
 **Training Metrics**:
 ```python
@@ -474,7 +474,7 @@ wandb.log(metrics)  # Use weights & biases for tracking
 
 ## Algorithm Advantages
 
-### 🌟 Compared to Traditional Methods
+###  Compared to Traditional Methods
 
 **vs Matched Filtering**:
 - ✅ **Template-free**: No need for pre-computed waveforms
@@ -488,7 +488,7 @@ wandb.log(metrics)  # Use weights & biases for tracking
 - ✅ **Temporal modeling**: LSTM captures evolution over time
 - ✅ **Interpretable**: Reconstruction error has physical meaning
 
-### 🎯 Limitations and Future Work
+###  Limitations and Future Work
 
 **Current Limitations**:
 - Synthetic data only (reality gap)
@@ -504,7 +504,7 @@ wandb.log(metrics)  # Use weights & biases for tracking
 
 ---
 
-## 🔬 Mathematical Derivations
+##  Mathematical Derivations
 
 ### CWT Discretization
 For digital implementation, the continuous integral becomes:

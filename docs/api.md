@@ -1,8 +1,8 @@
-# 📚 CWT-LSTM Autoencoder API Reference
+# CWT-LSTM Autoencoder API Reference
 
 *Complete documentation for classes, functions, and modules.*
 
-## 📚 Table of Contents
+## Table of Contents
 - [Core Models](#core-models)
 - [Signal Processing](#signal-processing)
 - [Data Generation](#data-generation)

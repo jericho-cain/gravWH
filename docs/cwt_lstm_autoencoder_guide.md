@@ -4,7 +4,7 @@
 
 This guide explains our breakthrough approach to gravitational wave detection using **Continuous Wavelet Transform (CWT) combined with LSTM Autoencoders**. This method achieves professional-grade performance with **90.6% precision** and **67.6% recall** - exceeding LIGO detection requirements with excellent sensitivity.
 
-## 🌟 Why This Approach Works
+##  Why This Approach Works
 
 ### The Problem with Previous Methods
 
@@ -19,17 +19,17 @@ Traditional approaches to gravitational wave detection face fundamental challeng
 
 Our approach addresses these challenges through:
 
-1. **🌊 Continuous Wavelet Transform (CWT)**:
+1. ** Continuous Wavelet Transform (CWT)**:
    - Captures time-frequency evolution of gravitational wave chirps
    - Uses Morlet wavelets optimized for oscillatory signals
    - Reveals frequency sweeps from 35Hz → 350Hz over time
 
-2. **🤖 LSTM Autoencoder for Anomaly Detection**:
+2. ** LSTM Autoencoder for Anomaly Detection**:
    - Learns "normal" noise patterns in time-frequency domain
    - Gravitational waves appear as anomalies with high reconstruction error
    - No need for labeled training data - unsupervised learning
 
-3. **📊 Precision-Recall Optimization**:
+3. ** Precision-Recall Optimization**:
    - Optimized for high precision (low false alarm rate)
    - Conservative approach suitable for astronomical discovery
 
@@ -83,7 +83,7 @@ class SimpleCWTAutoencoder(nn.Module):
 2. **Detection Phase**: Calculate reconstruction error for all samples
 3. **Classification**: High reconstruction error → Gravitational wave signal
 
-## 📊 Performance Results
+##  Performance Results
 
 ### Key Metrics
 

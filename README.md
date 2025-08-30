@@ -50,16 +50,24 @@ pip install PyWavelets  # For CWT functionality
 # Run the main CWT-LSTM autoencoder analysis
 python gravitational_wave_hunter/models/cwt_lstm_autoencoder.py
 
-# Run comprehensive precision-recall analysis
+# Run comprehensive precision-recall analysis  
 python examples/precision_recall_analysis.py
 ```
 
 ### View Results
 
 Check the `results/` folder for:
-- `precision_recall_main.png` - Main precision-recall curves
-- `precision_recall_analysis.png` - Detailed performance analysis  
-- `cwt_lstm_autoencoder_results.png` - CWT visualizations and training results
+- `precision_recall_curve.png` - Main precision-recall curve
+- `roc_curve.png` - ROC curve analysis
+- `snr_performance_standalone.png` - SNR vs detection performance
+- `precision_recall_comprehensive_analysis.png` - Detailed analysis
+
+### 📄 Generated Paper
+
+The repository includes an automated LaTeX paper that updates with your latest results:
+- `paper/main.tex` - Complete research paper (LaTeX)
+- `paper/main.pdf` - Auto-generated PDF (via GitHub Actions)
+- `paper/sections/results.tex` - Auto-updating results section
 
 ## 📊 Performance Results
 
@@ -139,23 +147,27 @@ This approach represents a novel contribution to gravitational wave astronomy:
 
 ```
 gravitational_wave_hunter/
-├── docs/                           # Documentation
+├── docs/                           # 📚 Documentation
 │   ├── cwt_lstm_autoencoder_guide.md  # Complete model guide
-│   ├── algorithms.md               # Technical details
-│   └── physics.md                  # Physics background
-├── notebooks/                      # Main implementation
-│   ├── cwt_lstm_autoencoder.py     # 🌟 Main model
-│   ├── precision_recall_analysis.py # Performance analysis
-│   └── view_precision_recall_plots.py # Visualization
-├── results/                        # Generated plots and results
-│   ├── precision_recall_main.png   # Main results
-│   ├── precision_recall_analysis.png # Detailed analysis
-│   └── cwt_lstm_autoencoder_results.png # CWT visualizations
-├── gravitational_wave_hunter/      # Core package
-│   ├── models/                     # Model implementations
-│   ├── signal_processing/          # Preprocessing utilities
-│   └── utils/                      # Helper functions
-└── tests/                          # Test suite
+│   ├── algorithms.md               # Technical algorithm details
+│   ├── physics.md                  # Physics background (for non-physicists)
+│   └── api.md                      # API reference
+├── gravitational_wave_hunter/      # 🔬 Core package
+│   └── models/
+│       └── cwt_lstm_autoencoder.py # 🌟 Main CWT-LSTM model
+├── examples/                       # 📊 Analysis scripts  
+│   └── precision_recall_analysis.py # Performance analysis
+├── paper/                          # 📄 Automated research paper
+│   ├── main.tex                    # Complete LaTeX paper
+│   ├── main.pdf                    # Auto-generated PDF
+│   ├── sections/results.tex        # Auto-updating results
+│   ├── figures/                    # Publication-quality plots
+│   └── scripts/update_results.py   # Automation system
+├── results/                        # 📈 Generated plots and results
+│   ├── precision_recall_curve.png  # Main precision-recall curve
+│   ├── roc_curve.png              # ROC analysis
+│   └── snr_performance_standalone.png # SNR performance
+└── requirements.txt                # Dependencies
 ```
 
 ## 🛠️ Key Features

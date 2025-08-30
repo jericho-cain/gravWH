@@ -13,8 +13,6 @@
 
 \section{Results}
 
-\subsection{Overall Performance Metrics}
-
 The CWT-LSTM autoencoder demonstrates exceptional performance in gravitational wave detection on synthetic data, achieving results that exceed the stringent requirements for operational gravitational wave observatories. Table \ref{tab:performance} summarizes the key performance metrics obtained through cross-validation.
 
 \begin{table}[htbp]
@@ -36,25 +34,9 @@ Average Precision & \AVGPRECISION & Professional-grade performance \\
 
 The achieved precision of \OPTPRECISION\ significantly exceeds LIGO's operational requirement of $>$90\% for confident gravitational wave identification, while maintaining \OPTRECALL\ recall for practical signal detection. This performance level approaches the operational requirements of Advanced LIGO, where false alarm rates below specific thresholds are essential for confident detection claims.
 
-\subsection{Operating Point Analysis}
+Figure \ref{fig:precision_recall} presents the precision-recall curve, illustrating the trade-off between detection sensitivity and false alarm rate across different decision thresholds. Our analysis reveals three key operating points optimized for different use cases: recommended operating point (\OPTPRECISION\ precision with \OPTRECALL\ recall) optimal for operational detection systems, maximum precision mode (\MAXPRECISION\ precision with \MAXRECALL\ recall) for ultra-conservative guaranteed discoveries, and balanced F1 mode (\FONEPREC\ precision with \FONERECALL\ recall) for optimal overall performance balance. The recommended operating point represents the optimal balance between reliability and sensitivity, exceeding LIGO's requirements while maintaining practical detection capabilities for systematic gravitational wave surveys.
 
-Figure \ref{fig:precision_recall} presents the precision-recall curve, illustrating the trade-off between detection sensitivity and false alarm rate across different decision thresholds. Our analysis reveals three key operating points optimized for different use cases:
-
-\begin{itemize}
-\item \textbf{Recommended Operating Point}: \OPTPRECISION\ precision with \OPTRECALL\ recall - optimal for operational detection systems
-\item \textbf{Maximum Precision Mode}: \MAXPRECISION\ precision with \MAXRECALL\ recall - ultra-conservative for guaranteed discoveries  
-\item \textbf{Balanced F1 Mode}: \FONEPREC\ precision with \FONERECALL\ recall - optimal overall performance balance
-\end{itemize}
-
-The recommended operating point of \OPTPRECISION\ precision represents the optimal balance between reliability and sensitivity, exceeding LIGO's requirements while maintaining practical detection capabilities for systematic gravitational wave surveys.
-
-\subsection{ROC Curve Analysis}
-
-The Receiver Operating Characteristic (ROC) curve, shown in Figure \ref{fig:roc_curve}, demonstrates the classifier's ability to distinguish between signal and noise across all possible decision thresholds. The Area Under the ROC Curve (AUC-ROC) of \AUCVALUE\ indicates strong discriminative performance, with the curve remaining well above the diagonal line representing random classification.
-
-\subsection{Performance Comparison}
-
-Table \ref{tab:comparison} compares the CWT-LSTM autoencoder performance against established baseline methods using identical test datasets.
+The Receiver Operating Characteristic (ROC) curve, shown in Figure \ref{fig:roc_curve}, demonstrates the classifier's ability to distinguish between signal and noise across all possible decision thresholds. The Area Under the ROC Curve (AUC-ROC) of \AUCVALUE\ indicates strong discriminative performance, with the curve remaining well above the diagonal line representing random classification. Table \ref{tab:comparison} compares the CWT-LSTM autoencoder performance against established baseline methods using identical test datasets.
 
 \begin{table}[htbp]
 \centering

@@ -75,19 +75,15 @@ The resulting time-frequency representation forms a 2D scalogram $|W(a,b)|^2$ th
 
 \subsection{LSTM Autoencoder Architecture}
 
-The core detection system employs an LSTM autoencoder designed to learn compressed representations of gravitational wave time-frequency patterns. The architecture consists of three main components: an encoder network, a bottleneck layer, and a decoder network.
+The core detection system employs an LSTM autoencoder designed to learn compressed representations of gravitational wave time-frequency patterns. The architecture consists of three main components operating in sequence: encoder network, bottleneck layer, and decoder network.
 
-\subsubsection{Encoder Network}
-
-The encoder processes the CWT scalogram through a series of LSTM layers with progressively reducing hidden dimensions:
+The encoder processes CWT scalograms through a series of LSTM layers with progressively reducing hidden dimensions, implementing the standard LSTM formulation:
 
 \begin{equation}
 h_t^{(l)} = \text{LSTM}^{(l)}(x_t^{(l)}, h_{t-1}^{(l)})
 \end{equation}
 
-where $h_t^{(l)}$ represents the hidden state at time $t$ for layer $l$, and $x_t^{(l)}$ is the input at time $t$ for layer $l$. The encoder employs three LSTM layers with hidden dimensions [128, 64, 32], capturing hierarchical temporal patterns at multiple scales.
-
-Each LSTM cell implements the standard gating mechanism:
+where $h_t^{(l)}$ represents the hidden state at time $t$ for layer $l$, and $x_t^{(l)}$ is the input at time $t$ for layer $l$. The encoder employs three LSTM layers with hidden dimensions [128, 64, 32], capturing hierarchical temporal patterns at multiple scales through standard gating mechanisms:
 
 \begin{align}
 f_t &= \sigma(W_f \cdot [h_{t-1}, x_t] + b_f) \\
@@ -100,17 +96,9 @@ h_t &= o_t \cdot \tanh(C_t)
 
 where $\sigma$ denotes the sigmoid activation function, $W$ and $b$ represent learned weight matrices and bias vectors, and $f_t$, $i_t$, $o_t$ are the forget, input, and output gates respectively.
 
-\subsubsection{Bottleneck Representation}
-
-The encoder output feeds into a dense bottleneck layer with 16 neurons, forcing the network to learn a compact latent representation of the input signal. This compression step ensures that only the most salient features necessary for reconstruction are preserved, naturally filtering out noise components that cannot be efficiently encoded.
-
-\subsubsection{Decoder Network}
-
-The decoder mirrors the encoder architecture with LSTM layers of dimensions [32, 64, 128], reconstructing the original CWT scalogram from the compressed representation. The final layer employs linear activation to match the continuous-valued input domain.
+The encoder output feeds into a dense bottleneck layer with 16 neurons, forcing the network to learn a compact latent representation of the input signal. This compression step ensures that only the most salient features necessary for reconstruction are preserved, naturally filtering out noise components that cannot be efficiently encoded. The decoder mirrors the encoder architecture with LSTM layers of dimensions [32, 64, 128], reconstructing the original CWT scalogram from the compressed representation. The final layer employs linear activation to match the continuous-valued input domain.
 
 \subsection{Training Protocol}
-
-\subsubsection{Loss Function}
 
 The network is trained using mean squared error (MSE) loss between the input and reconstructed scalograms:
 
@@ -118,11 +106,7 @@ The network is trained using mean squared error (MSE) loss between the input and
 \mathcal{L} = \frac{1}{N} \sum_{i=1}^{N} ||X_i - \hat{X}_i||^2
 \end{equation}
 
-where $X_i$ represents the input scalogram, $\hat{X}_i$ is the reconstruction, and $N$ is the batch size.
-
-\subsubsection{Optimization}
-
-Training employs the Adam optimizer with an initial learning rate of $10^{-3}$, exponential decay rate of 0.95 every 10 epochs, and gradient clipping at magnitude 1.0 to ensure stable convergence. The network trains for 100 epochs with early stopping based on validation loss plateau.
+where $X_i$ represents the input scalogram, $\hat{X}_i$ is the reconstruction, and $N$ is the batch size. Training employs the Adam optimizer with an initial learning rate of $10^{-3}$, exponential decay rate of 0.95 every 10 epochs, and gradient clipping at magnitude 1.0 to ensure stable convergence. The network trains for 100 epochs with early stopping based on validation loss plateau to prevent overfitting.
 
 \subsection{Detection Strategy}
 
@@ -158,31 +142,19 @@ h(t) = h_+(t) \cos(2\psi) + h_\times(t) \sin(2\psi)
 
 where $h_+(t)$ and $h_\times(t)$ are the plus and cross polarizations, and $\psi$ is the polarization angle randomly sampled from $[0, 2\pi]$.
 
-\subsubsection{Chirp Signal Modeling}
-
 The frequency evolution follows the post-Newtonian expansion for the inspiral phase:
 
 \begin{equation}
 f(t) = f_0 \left(\frac{\tau}{\tau_0}\right)^{-3/8}
 \end{equation}
 
-where $f_0 = 35$ Hz is the initial frequency, $\tau = t_c - t$ is the time to coalescence, and $\tau_0$ is the initial time to coalescence. The instantaneous phase evolves as:
-
-\begin{equation}
-\phi(t) = 2\pi \int_0^t f(t') dt'
-\end{equation}
-
-The amplitude incorporates realistic scaling with chirp mass $\mathcal{M}_c$ and luminosity distance $D_L$:
+where $f_0 = 35$ Hz is the initial frequency, $\tau = t_c - t$ is the time to coalescence, and $\tau_0$ is the initial time to coalescence. The instantaneous phase evolves as $\phi(t) = 2\pi \int_0^t f(t') dt'$, while the amplitude incorporates realistic scaling with chirp mass $\mathcal{M}_c$ and luminosity distance $D_L$:
 
 \begin{equation}
 A(t) = \frac{4G^{5/3}}{c^3} \frac{(2\pi f(t))^{2/3} \mathcal{M}_c^{5/3}}{D_L}
 \end{equation}
 
-where $G$ is the gravitational constant and $c$ is the speed of light.
-
-\subsubsection{Parameter Distributions}
-
-Binary system parameters are drawn from astrophysically motivated distributions:
+where $G$ is the gravitational constant and $c$ is the speed of light. Binary system parameters are drawn from astrophysically motivated distributions:
 
 \begin{itemize}
 \item \textbf{Component masses}: $m_1, m_2 \sim \mathcal{U}(10, 80) M_\odot$ with $m_1 \geq m_2$
@@ -201,27 +173,13 @@ The chirp mass and symmetric mass ratio are derived as:
 
 \subsection{Noise Modeling}
 
-\subsubsection{Advanced LIGO Noise Characteristics}
-
 We model realistic detector noise using the Advanced LIGO design sensitivity curve, incorporating both fundamental noise sources and instrumental artifacts. The power spectral density (PSD) follows the analytical approximation:
 
 \begin{equation}
 S_n(f) = S_0 \left[ \left(\frac{f}{f_0}\right)^{-4.14} + 5 + 3\left(\frac{f}{f_0}\right)^2 \right]
 \end{equation}
 
-where $S_0 = 10^{-49}$ Hz$^{-1}$ and $f_0 = 215$ Hz represent the characteristic noise amplitude and knee frequency respectively.
-
-\subsubsection{Colored Gaussian Noise Generation}
-
-Colored Gaussian noise matching the LIGO PSD is generated using the frequency-domain method:
-
-\begin{enumerate}
-\item Generate white Gaussian noise $\tilde{n}_{\text{white}}(f)$ in the frequency domain
-\item Apply spectral shaping: $\tilde{n}(f) = \tilde{n}_{\text{white}}(f) \sqrt{S_n(f)}$
-\item Transform to time domain: $n(t) = \text{IFFT}[\tilde{n}(f)]$
-\end{enumerate}
-
-This procedure ensures that the generated noise accurately reproduces the frequency-dependent sensitivity characteristics of Advanced LIGO detectors.
+where $S_0 = 10^{-49}$ Hz$^{-1}$ and $f_0 = 215$ Hz represent the characteristic noise amplitude and knee frequency respectively. Colored Gaussian noise matching the LIGO PSD is generated using the frequency-domain method: generating white Gaussian noise $\tilde{n}_{\text{white}}(f)$ in the frequency domain, applying spectral shaping $\tilde{n}(f) = \tilde{n}_{\text{white}}(f) \sqrt{S_n(f)}$, and transforming to the time domain $n(t) = \text{IFFT}[\tilde{n}(f)]$. This procedure ensures that the generated noise accurately reproduces the frequency-dependent sensitivity characteristics of Advanced LIGO detectors.
 
 \subsection{Dataset Construction}
 

@@ -64,12 +64,13 @@ Check the `results/` folder for:
 - `snr_performance_standalone.png` - SNR vs detection performance
 - `precision_recall_comprehensive_analysis.png` - Detailed analysis
 
-### Generated Paper
+### Research Paper
 
-The repository includes an automated LaTeX paper that updates with your latest results:
+The repository includes an automated LaTeX paper generation system:
 - `paper/main.tex` - Complete research paper (LaTeX)
 - `paper/main.pdf` - Auto-generated PDF (via GitHub Actions)
-- `paper/sections/results.tex` - Auto-updating results section
+- `paper/sections/results.tex` - Dynamically updated results section
+- `paper/scripts/update_results.py` - Automation pipeline
 
 ## Performance Results
 

@@ -1,6 +1,6 @@
 # 🌌 Gravitational Wave Hunter
 
-![GitHub Banner](assets/github_banner.png)
+![GitHub Banner](assets/github_banner.png?v=2)
 
 **State-of-the-art gravitational wave detection using Continuous Wavelet Transform (CWT) and LSTM Autoencoders.**
 

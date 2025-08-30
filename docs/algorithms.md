@@ -155,12 +155,12 @@ Output: Reconstructed Scalogram (32 × 2048)
 Each LSTM cell implements:
 
 ```math
-f_t = σ(W_f · [h_{t-1}, x_t] + b_f)      # Forget gate
-i_t = σ(W_i · [h_{t-1}, x_t] + b_i)      # Input gate  
-C̃_t = tanh(W_C · [h_{t-1}, x_t] + b_C)   # Candidate values
-C_t = f_t * C_{t-1} + i_t * C̃_t          # Cell state
-o_t = σ(W_o · [h_{t-1}, x_t] + b_o)      # Output gate
-h_t = o_t * tanh(C_t)                    # Hidden state
+f_t = σ(W_f · [h_{t-1}, x_t] + b_f)      \text{ (Forget gate)}
+i_t = σ(W_i · [h_{t-1}, x_t] + b_i)      \text{ (Input gate)}  
+C̃_t = tanh(W_C · [h_{t-1}, x_t] + b_C)   \text{ (Candidate values)}
+C_t = f_t * C_{t-1} + i_t * C̃_t          \text{ (Cell state)}
+o_t = σ(W_o · [h_{t-1}, x_t] + b_o)      \text{ (Output gate)}
+h_t = o_t * tanh(C_t)                    \text{ (Hidden state)}
 ```
 
 **Why LSTM?**

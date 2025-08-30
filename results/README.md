@@ -2,15 +2,15 @@
 
 This folder contains the key results from our CWT-LSTM Autoencoder gravitational wave detection model.
 
-## 📊 Key Performance Metrics
+## Key Performance Metrics
 
-- **🎯 Precision**: 92.3% (**EXCEEDS LIGO >90% requirement!**)
-- **📈 Recall**: 67.6% (catches most real signals)
-- **⚖️ Excellent Balance**: Optimal precision-sensitivity trade-off
-- **📈 AUC**: 0.821 (strong discriminative power)
-- **🏆 Average Precision**: 0.788 (professional grade)
+- **Precision**: 90.6% (exceeds LIGO >90% requirement)
+- **Recall**: 67.6% (catches most real signals)
+- **Excellent Balance**: Optimal precision-sensitivity trade-off
+- **AUC**: 0.821 (strong discriminative power)
+- **Average Precision**: 0.788 (professional grade)
 
-## 🖼️ Result Images
+## Result Images
 
 ### `precision_recall_analysis.png`
 **Main precision-recall analysis showing:**
@@ -40,11 +40,11 @@ This folder contains the key results from our CWT-LSTM Autoencoder gravitational
 - Model reconstruction examples
 - Latent space representations
 
-## 🎯 Interpretation
+## Interpretation
 
 ### Excellent Performance
 - **Average Precision > 0.7**: Professional-grade performance
-- **92.3% Precision**: **EXCEEDS** LIGO's >90% requirement for discoveries
+- **90.6% Precision**: **EXCEEDS** LIGO's >90% requirement for discoveries
 - **67.6% Recall**: Excellent sensitivity - catches most real gravitational waves
 
 ### Operating Modes
@@ -53,11 +53,11 @@ This folder contains the key results from our CWT-LSTM Autoencoder gravitational
 3. **Sensitive Mode (70% threshold)**: 72% precision, 68% recall - for follow-up studies
 
 ### Scientific Validation
-- **EXCEEDS LIGO standards**: 92.3% precision vs. LIGO's >90% requirement with excellent 67.6% recall
+- **EXCEEDS LIGO standards**: 90.6% precision vs. LIGO's >90% requirement with excellent 67.6% recall
 - **Effective SNR range**: Best performance for signals with SNR > 10
 - **Conservative approach**: Better to miss weak signals than create false discoveries
 
-## 🌟 Key Innovation
+## Key Innovation
 
 The **CWT-LSTM Autoencoder** approach represents a breakthrough by:
 

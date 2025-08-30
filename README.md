@@ -8,17 +8,17 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Deep Learning](https://img.shields.io/badge/Deep%20Learning-PyTorch-red.svg)](https://pytorch.org/)
 
-## 🎯 Overview
+## Overview
 
 This project implements a breakthrough approach to gravitational wave detection using **Continuous Wavelet Transform (CWT) combined with LSTM Autoencoders**. Our method achieves professional-grade performance:
 
-- **📊 Optimal Performance** 
-- **🎯 90.6% Precision** (exceeds LIGO >90% requirement!)
-- **📈 67.6% Recall** (catches most real signals)
-- **⚖️ Excellent Balance** (precision + sensitivity)
-- **🏆 AUC: 0.821** (strong discriminative power)
+- **Optimal Performance** 
+- **90.6% Precision** (exceeds LIGO >90% requirement!)
+- **67.6% Recall** (catches most real signals)
+- **Excellent Balance** (precision + sensitivity)
+- **AUC: 0.821** (strong discriminative power)
 
-## 🌟 Why This Approach Works
+## Why This Approach Works
 
 ### The Challenge
 Gravitational waves are incredibly weak signals (amplitude ~10⁻²¹) that are:
@@ -30,12 +30,12 @@ Gravitational waves are incredibly weak signals (amplitude ~10⁻²¹) that are:
 ### Our Solution
 **CWT-LSTM Autoencoder** addresses these challenges through:
 
-1. **🌊 Continuous Wavelet Transform**: Captures time-frequency evolution of gravitational wave chirps
-2. **🤖 LSTM Autoencoder**: Learns normal noise patterns, detects anomalous gravitational wave signals
-3. **📊 Anomaly Detection**: Unsupervised learning without need for labeled training data
-4. **🎯 Precision Optimization**: Designed for low false alarm rates required in astronomy
+1. **Continuous Wavelet Transform**: Captures time-frequency evolution of gravitational wave chirps
+2. **LSTM Autoencoder**: Learns normal noise patterns, detects anomalous gravitational wave signals
+3. **Anomaly Detection**: Unsupervised learning without need for labeled training data
+4. **Precision Optimization**: Designed for low false alarm rates required in astronomy
 
-## 🚀 Quick Start
+## Quick Start
 
 ### Installation
 
@@ -64,14 +64,14 @@ Check the `results/` folder for:
 - `snr_performance_standalone.png` - SNR vs detection performance
 - `precision_recall_comprehensive_analysis.png` - Detailed analysis
 
-### 📄 Generated Paper
+### Generated Paper
 
 The repository includes an automated LaTeX paper that updates with your latest results:
 - `paper/main.tex` - Complete research paper (LaTeX)
 - `paper/main.pdf` - Auto-generated PDF (via GitHub Actions)
 - `paper/sections/results.tex` - Auto-updating results section
 
-## 📊 Performance Results
+## Performance Results
 
 ### Key Metrics
 
@@ -90,7 +90,7 @@ The repository includes an automated LaTeX paper that updates with your latest r
 | **Survey** | 80% | 88.3% | 55.2% | Systematic searches |
 | **Sensitive** | 70% | 72.2% | 67.7% | Follow-up studies |
 
-## 🏗️ Architecture
+## Architecture
 
 ```python
 # 1. Preprocessing: Time-series → Time-frequency representation
@@ -110,7 +110,7 @@ test_samples → reconstruction_error → threshold → GW_detection
 - **Decoder**: Latent space → Reconstructed scalogram
 - **Detection**: High reconstruction error = Gravitational wave signal
 
-## 📈 Scientific Validation
+## Scientific Validation
 
 ### Comparison to LIGO Performance
 - **LIGO Requirements**: >90% precision for official discoveries
@@ -119,18 +119,18 @@ test_samples → reconstruction_error → threshold → GW_detection
 - **Detection Rate**: >90% for strong signals (SNR > 16)
 
 ### Real-World Applications
-1. **🔍 Discovery Mode**: Ultra-high precision for official discoveries
-2. **📊 Survey Mode**: Systematic gravitational wave catalog building  
-3. **🎯 Follow-up Mode**: Investigation of candidate events
+1. **Discovery Mode**: Ultra-high precision for official discoveries
+2. **Survey Mode**: Systematic gravitational wave catalog building  
+3. **Follow-up Mode**: Investigation of candidate events
 
-## 📚 Documentation
+## Documentation
 
 - **[Complete Guide](docs/cwt_lstm_autoencoder_guide.md)** - Comprehensive documentation
 - **[Technical Details](docs/algorithms.md)** - Algorithm explanations
 - **[Physics Background](docs/physics.md)** - Gravitational wave physics
 - **[API Reference](docs/api.md)** - Code documentation
 
-## 🔬 Research Context
+## Research Context
 
 This approach represents a novel contribution to gravitational wave astronomy:
 
@@ -145,42 +145,42 @@ This approach represents a novel contribution to gravitational wave astronomy:
 - **Advantage**: Template-free detection of unknown signals
 - **Performance**: Approaching LIGO sensitivity requirements
 
-## 📁 Repository Structure
+## Repository Structure
 
 ```
 gravitational_wave_hunter/
-├── docs/                           # 📚 Documentation
+├── docs/                           # Documentation
 │   ├── cwt_lstm_autoencoder_guide.md  # Complete model guide
 │   ├── algorithms.md               # Technical algorithm details
 │   ├── physics.md                  # Physics background (for non-physicists)
 │   └── api.md                      # API reference
-├── gravitational_wave_hunter/      # 🔬 Core package
+├── gravitational_wave_hunter/      # Core package
 │   └── models/
-│       └── cwt_lstm_autoencoder.py # 🌟 Main CWT-LSTM model
-├── examples/                       # 📊 Analysis scripts  
+│       └── cwt_lstm_autoencoder.py # Main CWT-LSTM model
+├── examples/                       # Analysis scripts  
 │   └── precision_recall_analysis.py # Performance analysis
-├── paper/                          # 📄 Automated research paper
+├── paper/                          # Automated research paper
 │   ├── main.tex                    # Complete LaTeX paper
 │   ├── main.pdf                    # Auto-generated PDF
 │   ├── sections/results.tex        # Auto-updating results
 │   ├── figures/                    # Publication-quality plots
 │   └── scripts/update_results.py   # Automation system
-├── results/                        # 📈 Generated plots and results
+├── results/                        # Generated plots and results
 │   ├── precision_recall_curve.png  # Main precision-recall curve
 │   ├── roc_curve.png              # ROC analysis
 │   └── snr_performance_standalone.png # SNR performance
 └── requirements.txt                # Dependencies
 ```
 
-## 🛠️ Key Features
+## Key Features
 
-- **🌊 Advanced Signal Processing**: CWT with Morlet wavelets optimized for chirp detection
-- **🤖 Deep Learning**: LSTM autoencoder for unsupervised anomaly detection  
-- **📊 Comprehensive Evaluation**: Precision-recall analysis with multiple thresholds
-- **🎯 Astronomy-Ready**: Low false alarm rates suitable for scientific discovery
-- **📈 Visualization**: Detailed plots showing model performance and interpretability
+- **Advanced Signal Processing**: CWT with Morlet wavelets optimized for chirp detection
+- **Deep Learning**: LSTM autoencoder for unsupervised anomaly detection  
+- **Comprehensive Evaluation**: Precision-recall analysis with multiple thresholds
+- **Astronomy-Ready**: Low false alarm rates suitable for scientific discovery
+- **Visualization**: Detailed plots showing model performance and interpretability
 
-## 🔮 Future Developments
+## Future Developments
 
 ### Short Term
 - [ ] Test on real LIGO Open Science Center data
@@ -193,7 +193,7 @@ gravitational_wave_hunter/
 - [ ] Parameter estimation (mass, spin, distance)
 - [ ] Multi-messenger astronomy integration
 
-## 🤝 Contributing
+## Contributing
 
 We welcome contributions! Please see [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines.
 
@@ -204,18 +204,18 @@ We welcome contributions! Please see [CONTRIBUTING.md](CONTRIBUTING.md) for guid
 4. Push to branch (`git push origin feature/amazing-feature`)
 5. Open a Pull Request
 
-## 📄 License
+## License
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
-## 🙏 Acknowledgments
+## Acknowledgments
 
 - **LIGO Scientific Collaboration** for open data and methodological inspiration
 - **PyWavelets** for continuous wavelet transform implementation
 - **PyTorch** for deep learning framework
 - **Scientific Community** for gravitational wave detection research
 
-## 📞 Contact
+## Contact
 
 For questions, suggestions, or collaborations:
 - Open an issue on GitHub

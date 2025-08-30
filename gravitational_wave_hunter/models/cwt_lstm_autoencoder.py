@@ -423,12 +423,18 @@ def main():
         strain_data.append(combined)
         labels.append(label)
     
-    strain_data = np.array(strain_data)
-    labels = np.array(labels)
-    snr_values = np.array(snr_values)
-    
-    print(f"📈 Dataset: {strain_data.shape}")
-    print(f"🏷️ Signals: {np.sum(labels)}, Noise: {np.sum(1-labels)}")
+    try:
+        strain_data = np.array(strain_data)
+        labels = np.array(labels)
+        snr_values = np.array(snr_values)
+        
+        print(f"📈 Dataset: {strain_data.shape}")
+        print(f"🏷️ Signals: {np.sum(labels)}, Noise: {np.sum(1-labels)}")
+    except Exception as e:
+        print(f"❌ Error converting to numpy arrays: {e}")
+        print(f"strain_data length: {len(strain_data) if strain_data else 'None'}")
+        print(f"labels length: {len(labels) if labels else 'None'}")
+        return
     
     # Compute CWT representations
     print(f"\n🌊 Computing Continuous Wavelet Transforms...")
@@ -655,16 +661,54 @@ def main():
     precision, recall, pr_thresholds = precision_recall_curve(test_labels, test_scores)
     avg_precision = auc(recall, precision)
     
-    # Find optimal threshold (maximize F1)
+    # Find key operating points
     f1_scores = 2 * (precision * recall) / (precision + recall + 1e-8)
     optimal_idx = np.argmax(f1_scores)
     optimal_threshold = pr_thresholds[optimal_idx] if optimal_idx < len(pr_thresholds) else pr_thresholds[-1]
     
+    # Find highest precision point
+    max_precision_idx = np.argmax(precision)
+    max_precision = precision[max_precision_idx]
+    max_precision_recall = recall[max_precision_idx]
+    max_precision_threshold = pr_thresholds[max_precision_idx] if max_precision_idx < len(pr_thresholds) else pr_thresholds[-1]
+    
+    # Find highest precision >= 90%
+    precision_90_plus = precision >= 0.90
+    if np.any(precision_90_plus):
+        # Among points with precision >= 90%, find the one with highest recall
+        valid_indices = np.where(precision_90_plus)[0]
+        best_90_idx = valid_indices[np.argmax(recall[valid_indices])]
+        precision_90 = precision[best_90_idx]
+        recall_90 = recall[best_90_idx]
+        threshold_90 = pr_thresholds[best_90_idx] if best_90_idx < len(pr_thresholds) else pr_thresholds[-1]
+    else:
+        precision_90 = recall_90 = threshold_90 = None
+    
+    # Print key operating points
+    print(f"\n📊 Key Operating Points:")
+    print(f"🏆 Maximum Precision: {max_precision:.1%} (Recall: {max_precision_recall:.1%})")
+    if precision_90 is not None:
+        print(f"🎯 Best ≥90% Precision: {precision_90:.1%} (Recall: {recall_90:.1%})")
+    else:
+        print(f"⚠️ No points found with ≥90% precision")
+    print(f"⚖️ Optimal F1: Precision {precision[optimal_idx]:.1%}, Recall {recall[optimal_idx]:.1%}")
+    
     fig_pr, ax_pr = plt.subplots(figsize=(8, 6))
     ax_pr.plot(recall, precision, 'b-', linewidth=2.5, 
                label=f'AUPRC = {avg_precision:.3f}')
+    
+    # Mark key operating points
     ax_pr.plot(recall[optimal_idx], precision[optimal_idx], 
-               'ro', markersize=8, label=f'Optimal (F1={f1_scores[optimal_idx]:.3f})')
+               'ro', markersize=8, label=f'Optimal F1 ({f1_scores[optimal_idx]:.3f})')
+    ax_pr.plot(max_precision_recall, max_precision, 
+               'go', markersize=8, label=f'Max Precision ({max_precision:.1%})')
+    
+    if precision_90 is not None:
+        ax_pr.plot(recall_90, precision_90, 
+                   'mo', markersize=8, label=f'Best ≥90% Prec ({precision_90:.1%})')
+    
+    # Add LIGO requirement line
+    ax_pr.axhline(y=0.9, color='orange', linestyle='--', alpha=0.7, label='LIGO Requirement (90%)')
     ax_pr.plot([0, 1], [0.5, 0.5], 'k--', alpha=0.5, label='Random Classifier')
     ax_pr.set_xlabel('Recall', fontsize=14)
     ax_pr.set_ylabel('Precision', fontsize=14)

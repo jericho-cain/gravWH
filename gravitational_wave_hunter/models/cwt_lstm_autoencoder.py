@@ -643,12 +643,13 @@ def main():
     # Generate standalone publication-quality figures
     print("\n📊 Generating individual publication plots...")
     
+    # Import metrics at the top to avoid scope conflicts
+    from sklearn.metrics import precision_recall_curve, roc_curve as sklearn_roc_curve, auc
+    
     # Extract data from results for individual plots
     test_predictions = results['predictions']
-    test_labels = results['labels']
+    test_labels = labels  # labels is already available in main function scope
     test_scores = results['reconstruction_errors']
-    
-    from sklearn.metrics import precision_recall_curve, roc_curve, auc
     
     # Figure 1: Precision-Recall Curve
     precision, recall, pr_thresholds = precision_recall_curve(test_labels, test_scores)
@@ -677,7 +678,7 @@ def main():
     plt.close()
     
     # Figure 2: ROC Curve
-    fpr, tpr, roc_thresholds = roc_curve(test_labels, test_scores)
+    fpr, tpr, roc_thresholds = sklearn_roc_curve(test_labels, test_scores)
     auc_score = auc(fpr, tpr)
     
     fig_roc, ax_roc = plt.subplots(figsize=(8, 6))

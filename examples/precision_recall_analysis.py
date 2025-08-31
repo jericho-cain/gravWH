@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
-Precision-Recall Analysis for CWT-LSTM Autoencoder
-Comprehensive evaluation with curves and threshold optimization
+Comprehensive Precision-Recall Analysis for CWT-LSTM Autoencoder
+Detailed analysis with multiple threshold evaluations and publication-quality plots
 """
 
 import numpy as np
@@ -15,6 +15,15 @@ from sklearn.metrics import (precision_recall_curve, average_precision_score,
                            roc_curve, roc_auc_score, classification_report,
                            precision_score, recall_score, f1_score)
 import warnings
+import logging
+
+# Set up logging
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(levelname)s - %(message)s',
+    datefmt='%Y-%m-%d %H:%M:%S'
+)
+logger = logging.getLogger(__name__)
 
 warnings.filterwarnings('ignore')
 device = torch.device('cpu')
@@ -394,8 +403,8 @@ def plot_comprehensive_analysis(y_true, scores, snr_values=None):
     return fig, pr_results
 
 def main():
-    print("📊 Comprehensive Precision-Recall Analysis")
-    print("=" * 50)
+    logger.info("📊 Comprehensive Precision-Recall Analysis")
+    logger.info("=" * 50)
     
     # Configuration
     SAMPLE_RATE = 512
@@ -403,7 +412,7 @@ def main():
     NUM_SAMPLES = 300  # More samples for better statistics
     SIGNAL_PROB = 0.3
     
-    print(f"📊 Generating {NUM_SAMPLES} samples...")
+    logger.info(f"📊 Generating {NUM_SAMPLES} samples...")
     
     # Generate data
     t = np.linspace(0, DURATION, int(SAMPLE_RATE * DURATION))

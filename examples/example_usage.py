@@ -1,17 +1,26 @@
 #!/usr/bin/env python3
 """
-Example Usage: CWT-LSTM Autoencoder for Gravitational Wave Detection
-Simple example showing how to use the model
+Example Usage of CWT-LSTM Autoencoder for Gravitational Wave Detection
+Demonstrates the complete pipeline from data generation to anomaly detection
 """
 
 import numpy as np
 import matplotlib.pyplot as plt
 import torch
 import torch.nn as nn
+import torch.optim as optim
 from torch.utils.data import DataLoader, TensorDataset
-from scipy import signal
+from sklearn.metrics import precision_score, recall_score, f1_score, accuracy_score
 import pywt
-import warnings
+import logging
+
+# Set up logging
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(levelname)s - %(message)s',
+    datefmt='%Y-%m-%d %H:%M:%S'
+)
+logger = logging.getLogger(__name__)
 
 warnings.filterwarnings('ignore')
 

@@ -59,7 +59,7 @@ plt.savefig('assets/github_banner.png',
             edgecolor='none')
 plt.close()
 
-print("✅ New clean GitHub banner generated: assets/github_banner.png")
-print("📏 Dimensions: 1280x640 pixels (GitHub standard)")
-print("🎨 Minimalist design with no clutter")
-print("🌌 Professional space theme with clean text only")
+print("SUCCESS: New clean GitHub banner generated: assets/github_banner.png")
+print("INFO: Dimensions: 1280x640 pixels (GitHub standard)")
+print("INFO: Minimalist design with no clutter")
+print("INFO: Professional space theme with clean text only")

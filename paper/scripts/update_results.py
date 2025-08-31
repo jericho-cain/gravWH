@@ -1,13 +1,24 @@
 #!/usr/bin/env python3
 """
-Automated LaTeX Paper Results Updater
-Updates named placeholders in results.tex with new performance metrics
+Automated paper results updater
+Updates LaTeX placeholders with latest model performance metrics
 """
+
 import json
 import re
 import os
 import shutil
+import subprocess
+import logging
 from datetime import datetime
+
+# Set up logging
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(levelname)s - %(message)s',
+    datefmt='%Y-%m-%d %H:%M:%S'
+)
+logger = logging.getLogger(__name__)
 
 def update_paper_results(results):
     """
@@ -27,9 +38,9 @@ def update_paper_results(results):
         
         # Check if we beat previous results
         if results['opt_precision'] > old_results.get('opt_precision', 0):
-            print(f"🎉 NEW RECORD! Precision: {old_results.get('opt_precision', 0):.1%} → {results['opt_precision']:.1%}")
+            logger.info(f"🎉 NEW RECORD! Precision: {old_results.get('opt_precision', 0):.1%} → {results['opt_precision']:.1%}")
         else:
-            print(f"📊 Updating results: {results['opt_precision']:.1%} precision")
+            logger.info(f"📊 Updating results: {results['opt_precision']:.1%} precision")
     
     # Save new results with timestamp
     results['timestamp'] = datetime.now().isoformat()
@@ -42,7 +53,7 @@ def update_paper_results(results):
     # Copy latest plots
     copy_latest_plots()
     
-    print("✅ Paper updated successfully!")
+    logger.info("✅ Paper updated successfully!")
 
 def update_latex_placeholders(results):
     """
@@ -87,7 +98,7 @@ def update_latex_placeholders(results):
     with open(results_tex, 'w') as f:
         f.write(latex_content)
     
-    print("✅ Updated LaTeX placeholders")
+    logger.info("✅ Updated LaTeX placeholders")
 
 def copy_latest_plots():
     """
@@ -105,9 +116,9 @@ def copy_latest_plots():
     for src, dst in plot_mappings.items():
         if os.path.exists(src):
             shutil.copy2(src, dst)
-            print(f"✅ Copied {src} → {dst}")
+            logger.info(f"✅ Copied {src} → {dst}")
         else:
-            print(f"⚠️ Plot not found: {src}")
+            logger.warning(f"⚠️ Plot not found: {src}")
 
 def compile_paper():
     """
@@ -115,7 +126,7 @@ def compile_paper():
     """
     
     if not os.path.exists("paper/main.tex"):
-        print("❌ main.tex not found")
+        logger.error("❌ main.tex not found")
         return
     
     original_dir = os.getcwd()
@@ -132,12 +143,12 @@ def compile_paper():
         for cmd in commands:
             result = os.system(cmd)
             if result != 0:
-                print(f"⚠️ LaTeX compilation warning for: {cmd}")
+                logger.warning(f"⚠️ LaTeX compilation warning for: {cmd}")
         
         if os.path.exists("main.pdf"):
-            print("✅ Paper compiled to main.pdf")
+            logger.info("✅ Paper compiled to main.pdf")
         else:
-            print("⚠️ PDF not generated - check LaTeX installation")
+            logger.warning("⚠️ PDF not generated - check LaTeX installation")
             
     finally:
         os.chdir(original_dir)
@@ -175,7 +186,7 @@ if __name__ == "__main__":
         'avg_precision': 0.788     # Average precision
     }
     
-    print("🔄 Updating paper with results...")
+    logger.info("🔄 Updating paper with results...")
     update_paper_results(results)
     
     # Optionally compile paper

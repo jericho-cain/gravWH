@@ -36,22 +36,9 @@ The achieved precision of \OPTPRECISION\ significantly exceeds LIGO's operationa
 
 Figure \ref{fig:precision_recall} presents the precision-recall curve, illustrating the trade-off between detection sensitivity and false alarm rate across different decision thresholds. Our analysis reveals three key operating points optimized for different use cases: recommended operating point (\OPTPRECISION\ precision with \OPTRECALL\ recall) optimal for operational detection systems, maximum precision mode (\MAXPRECISION\ precision with \MAXRECALL\ recall) for ultra-conservative guaranteed discoveries, and balanced F1 mode (\FONEPREC\ precision with \FONERECALL\ recall) for optimal overall performance balance. The recommended operating point represents the optimal balance between reliability and sensitivity, exceeding LIGO's requirements while maintaining practical detection capabilities for systematic gravitational wave surveys.
 
-The Receiver Operating Characteristic (ROC) curve, shown in Figure \ref{fig:roc_curve}, demonstrates the classifier's ability to distinguish between signal and noise across all possible decision thresholds. The Area Under the ROC Curve (AUC-ROC) of \AUCVALUE\ indicates strong discriminative performance, with the curve remaining well above the diagonal line representing random classification. Table \ref{tab:comparison} compares the CWT-LSTM autoencoder performance against established baseline methods using identical test datasets.
+The Receiver Operating Characteristic (ROC) curve, shown in Figure \ref{fig:roc_curve}, demonstrates the classifier's ability to distinguish between signal and noise across all possible decision thresholds. The Area Under the ROC Curve (AUC-ROC) of \AUCVALUE\ indicates strong discriminative performance, with the curve remaining well above the diagonal line representing random classification.
 
-\begin{table}[htbp]
-\centering
-\caption{Comparison with Baseline Methods}
-\label{tab:comparison}
-\begin{tabular}{lccc}
-\hline
-Method & Precision & Recall & Use Case \\
-\hline
-\textbf{CWT-LSTM (Recommended)} & \textbf{\OPTPRECISION} & \textbf{\OPTRECALL} & \textbf{Operational} \\
-CWT-LSTM (Maximum) & \MAXPRECISION & \MAXRECALL & Ultra-conservative \\
-CWT-LSTM (Balanced) & \FONEPREC & \FONERECALL & Survey mode \\
-\hline
-\end{tabular}
-\end{table}
+The CWT-LSTM autoencoder demonstrates excellent performance across different operating regimes. At the recommended operating point (\OPTPRECISION\ precision with \OPTRECALL\ recall), the model achieves optimal balance between reliability and sensitivity for operational detection systems. For ultra-conservative applications requiring guaranteed discoveries, the maximum precision mode (\MAXPRECISION\ precision with \MAXRECALL\ recall) provides near-perfect precision at the cost of reduced sensitivity. The balanced F1 mode (\FONEPREC\ precision with \FONERECALL\ recall) optimizes overall performance for survey applications.
 
 % Include figures
 \begin{figure}[htbp]

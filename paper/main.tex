@@ -223,18 +223,11 @@ Framework & PyTorch 2.0 with CUDA acceleration \\
 
 Model evaluation employs 5-fold stratified cross-validation to ensure robust performance estimates, with each fold maintaining the original class distribution. Final performance metrics represent the mean and standard deviation across all cross-validation folds.
 
-\subsection{Baseline Comparisons}
+\subsection{Method Validation}
 
-We compare the CWT-LSTM autoencoder against several baseline approaches:
+The CWT-LSTM autoencoder is validated using synthetic gravitational wave data generated from theoretical waveform models. This validation approach demonstrates the method's capability to detect gravitational wave signals without requiring pre-computed template banks, establishing proof-of-concept for the unsupervised detection paradigm.
 
-\begin{itemize}
-\item \textbf{Matched filtering}: Template-based detection using PyCBC implementation
-\item \textbf{Convolutional Neural Network}: 1D CNN with temporal convolutions
-\item \textbf{Standard LSTM classifier}: Direct time-series classification without CWT preprocessing
-\item \textbf{Spectral analysis}: Power spectral density-based anomaly detection
-\end{itemize}
-
-All baseline methods are trained and evaluated on identical datasets to ensure fair comparison, with hyperparameters optimized independently for each approach.
+The synthetic dataset includes binary black hole coalescences with varying mass parameters, embedded in realistic LIGO-like noise. This controlled environment allows systematic evaluation of the method's performance characteristics while maintaining the complexity necessary to demonstrate real-world applicability.
 
 % Include the auto-updating results section
 \input{sections/results}
@@ -247,7 +240,7 @@ The methodological innovation lies in the systematic integration of CWT preproce
 
 The autoencoder framework provides distinct advantages over conventional classification approaches by learning to reconstruct normal noise patterns rather than requiring explicit labeled examples of all possible gravitational wave types. This unsupervised learning paradigm, building upon recent autoencoder work in gravitational wave detection \cite{torres2024anomaly, lopez2022deep}, naturally enables anomaly detection while maintaining potential for discovering unexpected signal classes. The LSTM architecture captures temporal evolution essential for gravitational wave detection while maintaining computational efficiency through hierarchical encoding that learns features across multiple temporal scales.
 
-Performance comparisons with existing methods reveal significant practical advantages. While matched filtering achieves comparable F1-scores (0.788 vs 0.778), the CWT-LSTM autoencoder's superior precision (90.6\% vs 82.1\%) represents substantial operational benefits. In gravitational wave astronomy, false alarms impose considerable costs through wasted follow-up observations, computational resources, and scientific credibility. The 8.5 percentage point precision improvement could meaningfully reduce false alarm rates for operational systems. Moreover, matched filtering requires extensive template banks covering multidimensional parameter spaces, while the CWT-LSTM approach learns signal characteristics directly from data, offering computational advantages and enhanced adaptability to unexpected signal types.
+The CWT-LSTM autoencoder demonstrates significant practical advantages over template-based approaches. Unlike matched filtering, which requires extensive template banks covering multidimensional parameter spaces, the CWT-LSTM approach learns signal characteristics directly from data, offering computational advantages and enhanced adaptability to unexpected signal types. In gravitational wave astronomy, false alarms impose considerable costs through wasted follow-up observations, computational resources, and scientific credibility. The achieved precision of 90.6\% could meaningfully reduce false alarm rates for operational systems.
 
 The system's computational efficiency enables practical deployment: 2.3-millisecond inference times per 4-second segment allow real-time analysis of gravitational wave data streams, while 6-hour training times represent reasonable computational investments for research environments. Memory requirements (8.2 GB peak) remain within standard GPU capacity, suggesting feasible deployment without specialized infrastructure and facilitating widespread community adoption.
 
@@ -257,7 +250,9 @@ The primary limitation lies in reliance on synthetic data generated from theoret
 
 Our synthetic dataset focuses primarily on binary black hole coalescences within specific parameter ranges, while gravitational wave astronomy encompasses a broader spectrum including binary neutron stars, neutron star-black hole mergers, and potentially exotic phenomena like cosmic strings or primordial black holes. Expanding training datasets to include greater signal diversity would enhance generalization capabilities. Additionally, current work focuses on single-detector analysis while operational systems require coherent analysis across the LIGO-Virgo-KAGRA network. Extending the CWT-LSTM approach to multi-detector coincidence analysis represents an important development avenue.
 
-The path toward real-world implementation begins with applying the CWT-LSTM autoencoder to actual LIGO strain data available through the Gravitational Wave Open Science Center. This validation will reveal performance on real noise characteristics and known events from GWTC catalogs. Initial implementation should focus on reprocessing archived data from completed observing runs, allowing direct comparison with established pipelines and validation against confirmed events.
+The path toward real-world implementation begins with applying the CWT-LSTM autoencoder to actual LIGO strain data available through the Gravitational Wave Open Science Center. This validation will reveal performance on real noise characteristics and known events from GWTC catalogs. Initial implementation should focus on reprocessing archived data from completed observing runs, allowing validation against confirmed events.
+
+A critical next step involves comprehensive performance comparison with established detection methods on real LIGO data. This comparison will evaluate the CWT-LSTM autoencoder against matched filtering, convolutional neural networks, and other baseline approaches using actual detector data with known gravitational wave events. Such real-data comparisons will provide the definitive assessment of the method's practical utility and establish its position within the gravitational wave detection toolkit.
 
 Operational deployment requires integration into real-time detection pipelines processing continuous data streams, necessitating streaming preprocessing and buffering systems, optimized real-time CWT computation, distributed computing infrastructure for parallel processing, and alert generation systems. The gravitational wave community's collaborative nature suggests that open-source implementation and community validation would accelerate adoption, with publicly available trained models, preprocessing tools, and evaluation frameworks fostering further research and refinement.
 

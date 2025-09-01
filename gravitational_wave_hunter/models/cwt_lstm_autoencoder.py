@@ -14,6 +14,7 @@ from sklearn.metrics import precision_recall_curve, roc_curve, auc, precision_sc
 from sklearn.model_selection import train_test_split
 import pywt
 import logging
+from typing import Optional, Tuple, List
 
 # Set up logging
 logging.basicConfig(
@@ -36,8 +37,44 @@ import warnings
 warnings.filterwarnings('ignore')
 device = torch.device('cpu')
 
-def generate_realistic_chirp(t, m1=30, m2=30, distance=400, noise_level=1e-23):
-    """Generate realistic gravitational wave chirp"""
+def generate_realistic_chirp(
+    t: np.ndarray, 
+    m1: float = 30, 
+    m2: float = 30, 
+    distance: float = 400, 
+    noise_level: float = 1e-23
+) -> np.ndarray:
+    """
+    Generate realistic gravitational wave chirp signal.
+    
+    Simulates the gravitational wave signal from a binary black hole merger
+    using post-Newtonian approximations. The signal includes frequency evolution
+    (chirp), amplitude scaling with mass and distance, and realistic envelope.
+    
+    Parameters
+    ----------
+    t : np.ndarray
+        Time array in seconds.
+    m1 : float, optional
+        Mass of first black hole in solar masses, by default 30.
+    m2 : float, optional
+        Mass of second black hole in solar masses, by default 30.
+    distance : float, optional
+        Distance to the source in megaparsecs, by default 400.
+    noise_level : float, optional
+        Noise level (not currently used), by default 1e-23.
+    
+    Returns
+    -------
+    np.ndarray
+        Gravitational wave strain signal as a function of time.
+    
+    Notes
+    -----
+    The signal includes both plus and cross polarizations combined.
+    Frequency evolution follows post-Newtonian approximation.
+    Amplitude scales with chirp mass and inverse distance.
+    """
     # Physical parameters
     M_total = m1 + m2
     M_chirp = (m1 * m2)**(3/5) / (M_total)**(1/5)
@@ -68,8 +105,39 @@ def generate_realistic_chirp(t, m1=30, m2=30, distance=400, noise_level=1e-23):
     
     return 0.5 * (h_plus + h_cross)
 
-def generate_colored_noise(length, sample_rate, seed=None):
-    """Generate realistic LIGO-like colored noise"""
+def generate_colored_noise(
+    length: int, 
+    sample_rate: int, 
+    seed: Optional[int] = None
+) -> np.ndarray:
+    """
+    Generate realistic LIGO-like colored noise.
+    
+    Creates noise with a power spectral density that mimics the Advanced LIGO
+    noise curve, including seismic noise at low frequencies, thermal noise
+    at mid frequencies, and shot noise at high frequencies.
+    
+    Parameters
+    ----------
+    length : int
+        Length of the noise array in samples.
+    sample_rate : int
+        Sampling rate in Hz.
+    seed : int, optional
+        Random seed for reproducibility, by default None.
+    
+    Returns
+    -------
+    np.ndarray
+        Colored noise array with LIGO-like spectral properties.
+    
+    Notes
+    -----
+    The noise is generated using the frequency domain method:
+    1. Create white noise in frequency domain
+    2. Apply LIGO-like PSD
+    3. Transform back to time domain
+    """
     if seed is not None:
         np.random.seed(seed)
     
@@ -105,10 +173,40 @@ def generate_colored_noise(length, sample_rate, seed=None):
     
     return noise
 
-def continuous_wavelet_transform(signal, sample_rate, scales=None):
+def continuous_wavelet_transform(
+    signal: np.ndarray, 
+    sample_rate: int, 
+    scales: Optional[np.ndarray] = None
+) -> Tuple[np.ndarray, np.ndarray]:
     """
-    Compute Continuous Wavelet Transform using Morlet wavelets
-    Perfect for capturing frequency-time evolution of chirps
+    Compute Continuous Wavelet Transform using Morlet wavelets.
+    
+    Performs CWT analysis on the input signal using Morlet wavelets, which are
+    particularly well-suited for analyzing gravitational wave chirp signals
+    due to their good time-frequency localization.
+    
+    Parameters
+    ----------
+    signal : np.ndarray
+        Input time series signal.
+    sample_rate : int
+        Sampling rate of the signal in Hz.
+    scales : np.ndarray, optional
+        Wavelet scales to use. If None, automatically chosen to cover
+        20-512 Hz frequency range, by default None.
+    
+    Returns
+    -------
+    Tuple[np.ndarray, np.ndarray]
+        A tuple containing:
+        - scalogram: 2D array of wavelet coefficients (magnitude)
+        - frequencies: Corresponding frequency values in Hz
+    
+    Notes
+    -----
+    Uses Morlet wavelet ('morl') which is optimal for gravitational wave
+    analysis. Scales are chosen to cover the typical GW frequency range
+    of 20-512 Hz if not specified.
     """
     if scales is None:
         # Choose scales to cover gravitational wave frequency range (20-512 Hz)
@@ -126,10 +224,42 @@ def continuous_wavelet_transform(signal, sample_rate, scales=None):
     
     return scalogram, frequencies
 
-def preprocess_with_cwt(strain_data, sample_rate, target_height=64):
+def preprocess_with_cwt(
+    strain_data: np.ndarray, 
+    sample_rate: int, 
+    target_height: int = 64
+) -> np.ndarray:
     """
-    Preprocess strain data using CWT
-    Returns time-frequency representations
+    Preprocess gravitational wave strain data using Continuous Wavelet Transform.
+    
+    Applies a complete preprocessing pipeline to strain data including high-pass
+    filtering, whitening, CWT computation, and normalization. This prepares the
+    data for neural network analysis by converting time series to time-frequency
+    representations.
+    
+    Parameters
+    ----------
+    strain_data : np.ndarray
+        Array of strain time series data, shape (n_samples, n_time_points).
+    sample_rate : int
+        Sampling rate of the data in Hz.
+    target_height : int, optional
+        Target height for the CWT scalograms, by default 64.
+    
+    Returns
+    -------
+    np.ndarray
+        Preprocessed CWT data with shape (n_samples, target_height, n_time_points).
+        Each sample is a time-frequency representation (scalogram).
+    
+    Notes
+    -----
+    The preprocessing pipeline includes:
+    1. High-pass filtering (20 Hz cutoff)
+    2. Whitening (zero mean, unit variance)
+    3. CWT computation with Morlet wavelets
+    4. Resizing to target dimensions
+    5. Log transformation and normalization
     """
     cwt_data = []
     
@@ -167,12 +297,53 @@ def preprocess_with_cwt(strain_data, sample_rate, target_height=64):
 
 class CWT_LSTM_Autoencoder(nn.Module):
     """
-    LSTM Autoencoder that operates on CWT scalograms
-    - Encoder: Learns compact representation of time-frequency patterns
-    - Decoder: Reconstructs the scalogram
-    - Anomaly detection: High reconstruction error = potential GW signal
+    LSTM Autoencoder for gravitational wave detection using CWT scalograms.
+    
+    A hybrid neural network architecture that combines 2D convolutional layers
+    for spatial feature extraction with LSTM layers for temporal modeling.
+    Designed for unsupervised anomaly detection in gravitational wave data.
+    
+    The model learns to reconstruct normal noise patterns and identifies
+    anomalies (potential GW signals) through high reconstruction error.
+    
+    Attributes
+    ----------
+    input_height : int
+        Height of input CWT scalograms.
+    input_width : int
+        Width of input CWT scalograms.
+    latent_dim : int
+        Dimension of the latent space representation.
+    spatial_encoder : nn.Sequential
+        CNN encoder for spatial feature extraction.
+    temporal_encoder : nn.LSTM
+        LSTM encoder for temporal sequence modeling.
+    to_latent : nn.Linear
+        Linear layer mapping to latent space.
+    from_latent : nn.Linear
+        Linear layer mapping from latent space.
+    temporal_decoder : nn.LSTM
+        LSTM decoder for temporal sequence generation.
+    spatial_decoder : nn.Sequential
+        CNN decoder for spatial feature reconstruction.
+    
+    Notes
+    -----
+    The architecture follows an encoder-decoder pattern:
+    1. Spatial encoder: 2D CNN extracts features from scalograms
+    2. Temporal encoder: LSTM models temporal evolution
+    3. Latent space: Compact representation
+    4. Temporal decoder: LSTM reconstructs temporal patterns
+    5. Spatial decoder: 2D CNN reconstructs scalograms
     """
-    def __init__(self, input_height, input_width, latent_dim=32, lstm_hidden=64):
+    
+    def __init__(
+        self, 
+        input_height: int, 
+        input_width: int, 
+        latent_dim: int = 32, 
+        lstm_hidden: int = 64
+    ) -> None:
         super().__init__()
         
         self.input_height = input_height
@@ -221,7 +392,23 @@ class CWT_LSTM_Autoencoder(nn.Module):
             nn.Tanh()  # Output in [-1, 1] range
         )
         
-    def encode(self, x):
+    def encode(self, x: torch.Tensor) -> torch.Tensor:
+        """
+        Encode input scalogram to latent representation.
+        
+        Processes the input through spatial and temporal encoders to produce
+        a compact latent representation of the time-frequency patterns.
+        
+        Parameters
+        ----------
+        x : torch.Tensor
+            Input CWT scalogram tensor of shape (batch_size, 1, height, width).
+        
+        Returns
+        -------
+        torch.Tensor
+            Latent representation of shape (batch_size, latent_dim).
+        """
         batch_size, channels, height, width = x.size()
         
         # Spatial encoding (treat each time step as separate image)
@@ -240,7 +427,23 @@ class CWT_LSTM_Autoencoder(nn.Module):
         
         return latent
     
-    def decode(self, latent):
+    def decode(self, latent: torch.Tensor) -> torch.Tensor:
+        """
+        Decode latent representation back to scalogram.
+        
+        Reconstructs the original CWT scalogram from the latent representation
+        using temporal and spatial decoders.
+        
+        Parameters
+        ----------
+        latent : torch.Tensor
+            Latent representation of shape (batch_size, latent_dim).
+        
+        Returns
+        -------
+        torch.Tensor
+            Reconstructed scalogram of shape (batch_size, 1, height, width).
+        """
         batch_size = latent.size(0)
         
         # Expand latent to sequence
@@ -264,16 +467,55 @@ class CWT_LSTM_Autoencoder(nn.Module):
         
         return reconstructed
     
-    def forward(self, x):
+    def forward(self, x: torch.Tensor) -> Tuple[torch.Tensor, torch.Tensor]:
+        """
+        Forward pass through the autoencoder.
+        
+        Encodes the input to latent space and decodes back to reconstruction.
+        
+        Parameters
+        ----------
+        x : torch.Tensor
+            Input CWT scalogram tensor of shape (batch_size, 1, height, width).
+        
+        Returns
+        -------
+        Tuple[torch.Tensor, torch.Tensor]
+            A tuple containing:
+            - reconstructed: Reconstructed scalogram
+            - latent: Latent representation
+        """
         latent = self.encode(x)
-        reconstructed = self.decode(x)  # Note: simplified for this demo
+        reconstructed = self.decode(latent)  # Fixed: should decode from latent, not x
         return reconstructed, latent
 
 class SimpleCWTAutoencoder(nn.Module):
     """
-    Simplified version that's easier to train and understand
+    Simplified CWT Autoencoder for gravitational wave detection.
+    
+    A streamlined version of the CWT-LSTM autoencoder that uses only
+    convolutional layers for easier training and understanding. This model
+    is more stable to train and provides a good baseline for comparison.
+    
+    Attributes
+    ----------
+    height : int
+        Height of input CWT scalograms.
+    width : int
+        Width of input CWT scalograms.
+    encoder : nn.Sequential
+        Convolutional encoder network.
+    decoder : nn.Sequential
+        Convolutional decoder network.
+    
+    Notes
+    -----
+    This simplified version uses only 2D convolutions without LSTM layers,
+    making it easier to train and debug while still capturing spatial
+    patterns in the CWT scalograms.
     """
-    def __init__(self, height, width, latent_dim=64):
+    
+    def __init__(self, height: int, width: int, latent_dim: int = 64) -> None:
         super().__init__()
         
         # Encoder
@@ -302,7 +544,24 @@ class SimpleCWTAutoencoder(nn.Module):
         self.height = height
         self.width = width
         
-    def forward(self, x):
+    def forward(self, x: torch.Tensor) -> Tuple[torch.Tensor, torch.Tensor]:
+        """
+        Forward pass through the simplified autoencoder.
+        
+        Encodes the input to latent space and decodes back to reconstruction.
+        
+        Parameters
+        ----------
+        x : torch.Tensor
+            Input CWT scalogram tensor of shape (batch_size, 1, height, width).
+        
+        Returns
+        -------
+        Tuple[torch.Tensor, torch.Tensor]
+            A tuple containing:
+            - reconstructed: Reconstructed scalogram
+            - latent: Latent representation
+        """
         # Encode
         latent = self.encoder(x)
         
@@ -317,8 +576,41 @@ class SimpleCWTAutoencoder(nn.Module):
         
         return reconstructed, latent
 
-def train_autoencoder(model, noise_loader, num_epochs=50, lr=0.001):
-    """Train autoencoder on noise-only data"""
+def train_autoencoder(
+    model: nn.Module, 
+    noise_loader: DataLoader, 
+    num_epochs: int = 50, 
+    lr: float = 0.001
+) -> List[float]:
+    """
+    Train autoencoder on noise-only data for anomaly detection.
+    
+    Trains the autoencoder to reconstruct normal noise patterns. The model
+    learns to minimize reconstruction error for noise data, so that when
+    presented with gravitational wave signals (anomalies), it will have
+    higher reconstruction error.
+    
+    Parameters
+    ----------
+    model : nn.Module
+        The autoencoder model to train.
+    noise_loader : DataLoader
+        DataLoader containing only noise data for training.
+    num_epochs : int, optional
+        Number of training epochs, by default 50.
+    lr : float, optional
+        Learning rate for optimization, by default 0.001.
+    
+    Returns
+    -------
+    List[float]
+        List of average loss values for each epoch.
+    
+    Notes
+    -----
+    Uses MSE loss and Adam optimizer with learning rate scheduling.
+    The model is trained only on noise data to learn normal patterns.
+    """
     
     criterion = nn.MSELoss()
     optimizer = torch.optim.Adam(model.parameters(), lr=lr, weight_decay=1e-5)
@@ -358,8 +650,43 @@ def train_autoencoder(model, noise_loader, num_epochs=50, lr=0.001):
     
     return losses
 
-def detect_anomalies(model, test_loader, noise_threshold_percentile=95):
-    """Detect anomalies using reconstruction error"""
+def detect_anomalies(
+    model: nn.Module, 
+    test_loader: DataLoader, 
+    noise_threshold_percentile: float = 95
+) -> dict:
+    """
+    Detect anomalies using reconstruction error.
+    
+    Uses the trained autoencoder to identify potential gravitational wave
+    signals by measuring reconstruction error. Higher reconstruction error
+    indicates potential anomalies (GW signals) since the model was trained
+    only on noise data.
+    
+    Parameters
+    ----------
+    model : nn.Module
+        Trained autoencoder model.
+    test_loader : DataLoader
+        DataLoader containing test data (noise + potential signals).
+    noise_threshold_percentile : float, optional
+        Percentile threshold for anomaly detection, by default 95.
+    
+    Returns
+    -------
+    dict
+        Dictionary containing:
+        - predictions: Binary predictions (0=noise, 1=signal)
+        - reconstruction_errors: MSE reconstruction errors for each sample
+        - threshold: Calculated threshold value
+        - latent_representations: Latent space representations
+    
+    Notes
+    -----
+    The threshold is set based on the percentile of reconstruction errors
+    from the test data. Samples with error above this threshold are
+    classified as anomalies (potential GW signals).
+    """
     
     model.eval()
     reconstruction_errors = []
@@ -391,7 +718,22 @@ def detect_anomalies(model, test_loader, noise_threshold_percentile=95):
         'latent_representations': np.array(latent_representations)
     }
 
-def main():
+def main() -> None:
+    """
+    Main function for CWT-LSTM Autoencoder gravitational wave detection.
+    
+    Demonstrates the complete pipeline for gravitational wave detection:
+    1. Generate realistic gravitational wave and noise data
+    2. Preprocess data using Continuous Wavelet Transform
+    3. Train autoencoder on noise-only data
+    4. Detect anomalies using reconstruction error
+    5. Evaluate performance and generate visualizations
+    
+    Notes
+    -----
+    This function serves as both a demonstration and a complete working
+    example of the gravitational wave detection pipeline.
+    """
     logger.info("🌊 CWT + LSTM Autoencoder for Gravitational Wave Detection")
     logger.info("=" * 65)
     

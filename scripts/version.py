@@ -1,13 +1,30 @@
 #!/usr/bin/env python3
 """
-Version management script for Gravitational Wave Hunter.
+Version Management Script for Gravitational Wave Hunter.
 
-Usage:
+A comprehensive version management tool that handles version bumping, file updates,
+git operations, and release creation for the gravitational wave detection framework.
+
+Usage
+-----
     python scripts/version.py bump patch    # 0.1.0 -> 0.1.1
     python scripts/version.py bump minor    # 0.1.0 -> 0.2.0
     python scripts/version.py bump major    # 0.1.0 -> 1.0.0
     python scripts/version.py show          # Show current version
     python scripts/version.py release       # Create release (bump + tag + push)
+
+Features
+--------
+- Automatic version bumping (patch, minor, major)
+- Multi-file version synchronization
+- Git integration (commit, tag, push)
+- Release automation
+- Version validation and error handling
+
+Notes
+-----
+This script ensures consistent versioning across all project files and
+automates the release process for the gravitational wave detection framework.
 """
 
 import subprocess
@@ -15,10 +32,33 @@ import sys
 import os
 import re
 from pathlib import Path
+from typing import List, Tuple, Optional
 
 
-def run_command(cmd, check=True):
-    """Run a shell command and return the result."""
+def run_command(cmd: str, check: bool = True) -> subprocess.CompletedProcess:
+    """
+    Run a shell command and return the result.
+    
+    Executes a shell command and handles errors appropriately based on the
+    check parameter.
+    
+    Parameters
+    ----------
+    cmd : str
+        The shell command to execute.
+    check : bool, optional
+        If True, exit on error, by default True.
+    
+    Returns
+    -------
+    subprocess.CompletedProcess
+        The result of the command execution.
+    
+    Raises
+    ------
+    SystemExit
+        If check=True and command fails.
+    """
     result = subprocess.run(cmd, shell=True, capture_output=True, text=True)
     if check and result.returncode != 0:
         print(f"Error running command: {cmd}")
@@ -27,8 +67,23 @@ def run_command(cmd, check=True):
     return result
 
 
-def get_current_version():
-    """Get current version from pyproject.toml using regex."""
+def get_current_version() -> str:
+    """
+    Get current version from pyproject.toml using regex.
+    
+    Extracts the current version number from the pyproject.toml file
+    using regular expression matching.
+    
+    Returns
+    -------
+    str
+        The current version string (e.g., "0.1.2").
+    
+    Raises
+    ------
+    SystemExit
+        If version cannot be found or file cannot be read.
+    """
     try:
         with open("pyproject.toml", "r", encoding="utf-8") as f:
             content = f.read()
@@ -45,8 +100,23 @@ def get_current_version():
         sys.exit(1)
 
 
-def update_version_files(new_version):
-    """Update version in all relevant files."""
+def update_version_files(new_version: str) -> None:
+    """
+    Update version in all relevant files.
+    
+    Updates the version number in pyproject.toml, __init__.py, and README.md
+    to maintain consistency across the project.
+    
+    Parameters
+    ----------
+    new_version : str
+        The new version string to set (e.g., "0.1.3").
+    
+    Raises
+    ------
+    SystemExit
+        If any file cannot be updated.
+    """
     files_to_update = [
         ("pyproject.toml", r'version\s*=\s*"[^"]+"', f'version = "{new_version}"'),
         ("gravitational_wave_hunter/__init__.py", r'__version__\s*=\s*"[^"]+"', f'__version__ = "{new_version}"'),
@@ -69,8 +139,28 @@ def update_version_files(new_version):
             sys.exit(1)
 
 
-def bump_version(part):
-    """Bump version manually."""
+def bump_version(part: str) -> str:
+    """
+    Bump version manually.
+    
+    Increments the version number according to semantic versioning rules
+    and updates all relevant files.
+    
+    Parameters
+    ----------
+    part : str
+        Which part to bump: "major", "minor", or "patch".
+    
+    Returns
+    -------
+    str
+        The new version string.
+    
+    Raises
+    ------
+    SystemExit
+        If part is invalid or version bumping fails.
+    """
     current_version = get_current_version()
     major, minor, patch = map(int, current_version.split('.'))
     
@@ -100,8 +190,21 @@ def bump_version(part):
     return new_version
 
 
-def create_release():
-    """Create a release by bumping patch version and creating git tag."""
+def create_release() -> None:
+    """
+    Create a release by bumping patch version and creating git tag.
+    
+    Automates the release process by bumping the patch version, creating
+    a git tag, and pushing changes to the remote repository.
+    
+    Notes
+    -----
+    This function performs the following steps:
+    1. Bumps the patch version
+    2. Commits the changes
+    3. Creates a git tag
+    4. Pushes changes and tag to remote
+    """
     print("Creating release...")
     
     # Bump patch version
@@ -124,13 +227,35 @@ def create_release():
     print("GitHub Actions will automatically build and publish the release.")
 
 
-def show_version():
-    """Show current version."""
+def show_version() -> None:
+    """
+    Show current version.
+    
+    Displays the current version of the gravitational wave detection framework
+    as specified in pyproject.toml.
+    """
     version = get_current_version()
     print(f"Current version: {version}")
 
 
-def main():
+def main() -> None:
+    """
+    Main function for version management script.
+    
+    Parses command line arguments and executes the appropriate version
+    management function.
+    
+    Commands
+    --------
+    bump <part> : Bump version (patch, minor, major)
+    show        : Display current version
+    release     : Create a new release
+    
+    Raises
+    ------
+    SystemExit
+        If invalid command or arguments provided.
+    """
     if len(sys.argv) < 2:
         print(__doc__)
         sys.exit(1)

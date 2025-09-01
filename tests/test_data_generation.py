@@ -1,5 +1,6 @@
 import pytest
 import numpy as np
+from typing import Tuple
 from gravitational_wave_hunter.models.cwt_lstm_autoencoder import (
     generate_realistic_chirp,
     generate_colored_noise
@@ -7,10 +8,25 @@ from gravitational_wave_hunter.models.cwt_lstm_autoencoder import (
 
 
 class TestDataGeneration:
-    """Test data generation functions."""
+    """
+    Test suite for data generation functions.
     
-    def test_generate_realistic_chirp_basic(self):
-        """Test basic chirp generation with default parameters."""
+    Tests the functions responsible for generating realistic gravitational
+    wave signals and LIGO-like colored noise for training and evaluation.
+    
+    Tested Functions
+    ----------------
+    - generate_realistic_chirp: Creates GW signals from binary mergers
+    - generate_colored_noise: Creates LIGO-like noise with realistic PSD
+    """
+    
+    def test_generate_realistic_chirp_basic(self) -> None:
+        """
+        Test basic chirp generation with default parameters.
+        
+        Verifies that the function produces valid gravitational wave signals
+        with correct shape, non-zero values, and finite numbers.
+        """
         t = np.linspace(0, 4, 2048)
         chirp = generate_realistic_chirp(t)
         
@@ -19,8 +35,13 @@ class TestDataGeneration:
         assert not np.all(chirp == 0)
         assert np.isfinite(chirp).all()
     
-    def test_generate_realistic_chirp_parameters(self):
-        """Test chirp generation with different mass parameters."""
+    def test_generate_realistic_chirp_parameters(self) -> None:
+        """
+        Test chirp generation with different mass parameters.
+        
+        Verifies that different mass combinations produce different signals,
+        ensuring the function responds correctly to parameter changes.
+        """
         t = np.linspace(0, 4, 2048)
         
         # Test different mass combinations
@@ -30,8 +51,13 @@ class TestDataGeneration:
         assert chirp1.shape == chirp2.shape
         assert not np.array_equal(chirp1, chirp2)  # Different masses should produce different signals
     
-    def test_generate_realistic_chirp_distance_effect(self):
-        """Test that distance affects signal amplitude."""
+    def test_generate_realistic_chirp_distance_effect(self) -> None:
+        """
+        Test that distance affects signal amplitude.
+        
+        Verifies that signals from closer sources have higher amplitude,
+        which is physically correct for gravitational wave propagation.
+        """
         t = np.linspace(0, 4, 2048)
         
         chirp_close = generate_realistic_chirp(t, distance=100)
@@ -40,8 +66,13 @@ class TestDataGeneration:
         # Signal should be stronger at closer distance
         assert np.std(chirp_close) > np.std(chirp_far)
     
-    def test_generate_colored_noise_basic(self):
-        """Test basic colored noise generation."""
+    def test_generate_colored_noise_basic(self) -> None:
+        """
+        Test basic colored noise generation.
+        
+        Verifies that the function produces valid noise arrays with correct
+        shape and finite values, suitable for LIGO-like data simulation.
+        """
         length = 2048
         sample_rate = 512
         noise = generate_colored_noise(length, sample_rate)
@@ -54,8 +85,13 @@ class TestDataGeneration:
         assert len(noise) == length
         assert np.isfinite(noise).all()
     
-    def test_generate_colored_noise_reproducibility(self):
-        """Test that noise generation is reproducible with same seed."""
+    def test_generate_colored_noise_reproducibility(self) -> None:
+        """
+        Test that noise generation is reproducible with same seed.
+        
+        Verifies that using the same random seed produces identical noise,
+        ensuring reproducibility for testing and debugging.
+        """
         length = 2048
         sample_rate = 512
         seed = 42
@@ -65,8 +101,13 @@ class TestDataGeneration:
         
         np.testing.assert_array_equal(noise1, noise2)
     
-    def test_generate_colored_noise_different_seeds(self):
-        """Test that different seeds produce different noise."""
+    def test_generate_colored_noise_different_seeds(self) -> None:
+        """
+        Test that different seeds produce different noise.
+        
+        Verifies that different random seeds produce different noise patterns,
+        ensuring proper randomization in the generation process.
+        """
         length = 2048
         sample_rate = 512
         
@@ -75,8 +116,13 @@ class TestDataGeneration:
         
         assert not np.array_equal(noise1, noise2)
     
-    def test_generate_colored_noise_spectral_properties(self):
-        """Test that generated noise has expected spectral properties."""
+    def test_generate_colored_noise_spectral_properties(self) -> None:
+        """
+        Test that generated noise has expected spectral properties.
+        
+        Verifies that the generated noise has realistic spectral characteristics
+        with finite power values across different frequency ranges.
+        """
         length = 2048
         sample_rate = 512
         noise = generate_colored_noise(length, sample_rate)
@@ -101,8 +147,13 @@ class TestDataGeneration:
             assert np.isfinite(high_freq_power)
     
     @pytest.mark.slow
-    def test_large_dataset_generation(self):
-        """Test generation of larger datasets."""
+    def test_large_dataset_generation(self) -> None:
+        """
+        Test generation of larger datasets.
+        
+        Verifies that the functions can handle multiple samples efficiently
+        and produce consistent results across a larger dataset.
+        """
         t = np.linspace(0, 4, 2048)
         
         # Generate multiple samples

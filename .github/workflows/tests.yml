@@ -1,5 +1,6 @@
 name: Run Tests
 
+# Run tests on push to main and pull requests
 on:
   push:
     branches: [ main ]

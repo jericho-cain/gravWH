@@ -272,7 +272,7 @@ def create_precision_recall_plots(y_true, scores, snr_values=None):
     
     plt.tight_layout()
     plt.savefig('precision_recall_main.png', dpi=150, bbox_inches='tight')
-    logger.info("📁 Main plot saved as 'precision_recall_main.png'")
+    logger.info("Main plot saved as 'precision_recall_main.png'")
     
     # Create Figure 2: Performance Analysis
     plt.figure(figsize=(15, 10))
@@ -381,7 +381,7 @@ def create_precision_recall_plots(y_true, scores, snr_values=None):
     
     plt.tight_layout()
     plt.savefig('precision_recall_analysis.png', dpi=150, bbox_inches='tight')
-    logger.info("📁 Analysis plot saved as 'precision_recall_analysis.png'")
+    logger.info("Analysis plot saved as 'precision_recall_analysis.png'")
     
     return {
         'avg_precision': avg_precision,
@@ -393,7 +393,7 @@ def create_precision_recall_plots(y_true, scores, snr_values=None):
     }
 
 def main():
-    logger.info("📊 Creating Precision-Recall Plots (Fixed Version)")
+    logger.info("Creating Precision-Recall Plots (Fixed Version)")
     logger.info("=" * 55)
     
     # Quick data generation (smaller dataset for speed)
@@ -402,7 +402,7 @@ def main():
     NUM_SAMPLES = 200
     SIGNAL_PROB = 0.3
     
-    logger.info(f"📊 Generating {NUM_SAMPLES} samples...")
+    logger.info(f"Generating {NUM_SAMPLES} samples...")
     
     # Generate data
     t = np.linspace(0, DURATION, int(SAMPLE_RATE * DURATION))
@@ -443,15 +443,15 @@ def main():
     labels = np.array(labels)
     snr_values = np.array(snr_values)
     
-    logger.info(f"📈 Dataset: {strain_data.shape}")
-    logger.info(f"🏷️ Signals: {np.sum(labels)}, Noise: {np.sum(1-labels)}")
+    logger.info(f"Dataset: {strain_data.shape}")
+    logger.info(f"Signals: {np.sum(labels)}, Noise: {np.sum(1-labels)}")
     
     # Compute CWT (smaller size for speed)
     logger.info(f"🌊 Computing CWT representations...")
     cwt_data = preprocess_with_cwt(strain_data, SAMPLE_RATE, target_height=32)
     
     # Train autoencoder
-    logger.info(f"🤖 Training autoencoder...")
+    logger.info(f"Training autoencoder...")
     noise_indices = np.where(labels == 0)[0]
     noise_cwt = cwt_data[noise_indices]
     
@@ -464,38 +464,38 @@ def main():
     train_autoencoder_silent(model, noise_loader, num_epochs=20, lr=0.001)
     
     # Get reconstruction errors
-    logger.info(f"🔍 Computing reconstruction errors...")
+    logger.info(f"Computing reconstruction errors...")
     test_dataset = TensorDataset(torch.FloatTensor(cwt_data).unsqueeze(1))
     test_loader = DataLoader(test_dataset, batch_size=8, shuffle=False)
     
     reconstruction_errors = get_reconstruction_errors(model, test_loader)
     
     # Create plots
-    logger.info(f"📊 Creating precision-recall plots...")
+    logger.info(f"Creating precision-recall plots...")
     results = create_precision_recall_plots(labels, reconstruction_errors, snr_values)
     
     # Print results
-    logger.info(f"\n📈 RESULTS:")
-    logger.info(f"🎯 Average Precision: {results['avg_precision']:.3f}")
-    logger.info(f"🎯 AUC: {results['auc']:.3f}")
-    logger.info(f"📊 At Optimal Threshold:")
+    logger.info(f"\nRESULTS:")
+    logger.info(f"Average Precision: {results['avg_precision']:.3f}")
+    logger.info(f"AUC: {results['auc']:.3f}")
+    logger.info(f"At Optimal Threshold:")
     logger.info(f"  • Precision: {results['optimal_precision']:.1%}")
     logger.info(f"  • Recall: {results['optimal_recall']:.1%}")
     logger.info(f"  • F1-Score: {results['optimal_f1']:.1%}")
     
-    logger.info(f"\n🖼️ PLOTS CREATED:")
-    logger.info(f"📁 'precision_recall_main.png' - Main precision-recall curves")
-    logger.info(f"📁 'precision_recall_analysis.png' - Detailed analysis")
+    logger.info(f"\nPLOTS CREATED:")
+    logger.info(f"'precision_recall_main.png' - Main precision-recall curves")
+    logger.info(f"'precision_recall_analysis.png' - Detailed analysis")
     
     # Keep plots open
     logger.info(f"\n⏸️  Plots are now open and saved as files.")
-    logger.info(f"🖼️  You can view the saved PNG files if the plots close.")
+    logger.info(f"You can view the saved PNG files if the plots close.")
     
     # This will keep the script running and plots open
     try:
-        input("\n🖱️  Press Enter when you're done viewing the plots...")
+        input("\nPress Enter when you're done viewing the plots...")
     except KeyboardInterrupt:
-        logger.info(f"\n👋 Closing plots...")
+        logger.info(f"\nClosing plots...")
     
     plt.show(block=False)  # Show plots without blocking
     

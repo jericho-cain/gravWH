@@ -176,12 +176,12 @@ def main():
     DURATION = 4
     NUM_SAMPLES = 100
     
-    print(f"📊 Generating {NUM_SAMPLES} example samples...")
+    print(f"Generating {NUM_SAMPLES} example samples...")
     
     # Generate example data
     strain_data, labels = generate_example_data(NUM_SAMPLES, SAMPLE_RATE, DURATION)
     
-    print(f"🏷️ Generated {np.sum(labels)} signals and {np.sum(1-labels)} noise samples")
+    print(f"Generated {np.sum(labels)} signals and {np.sum(1-labels)} noise samples")
     
     # Compute CWT for all samples
     print("🌊 Computing CWT representations...")
@@ -197,7 +197,7 @@ def main():
     noise_indices = np.where(labels == 0)[0]
     noise_cwt = cwt_data[noise_indices]
     
-    print(f"🤖 Training autoencoder on {len(noise_cwt)} noise samples...")
+    print(f"Training autoencoder on {len(noise_cwt)} noise samples...")
     
     # Create and train model
     height, width = cwt_data.shape[1], cwt_data.shape[2]
@@ -206,7 +206,7 @@ def main():
     train_autoencoder(model, noise_cwt, num_epochs=15)
     
     # Detect gravitational waves
-    print("🔍 Detecting gravitational waves...")
+    print("Detecting gravitational waves...")
     predictions, errors, threshold = detect_gravitational_waves(model, cwt_data, threshold_percentile=85)
     
     # Calculate performance
@@ -219,12 +219,12 @@ def main():
     recall = true_positives / (true_positives + false_negatives) if (true_positives + false_negatives) > 0 else 0
     f1 = 2 * precision * recall / (precision + recall) if (precision + recall) > 0 else 0
     
-    print(f"\n📊 RESULTS:")
-    print(f"🎯 Accuracy: {accuracy:.1%}")
-    print(f"🔍 Precision: {precision:.1%}")
-    print(f"📈 Recall: {recall:.1%}")
-    print(f"⚖️ F1-Score: {f1:.1%}")
-    print(f"🚨 Threshold: {threshold:.6f}")
+    print(f"\nRESULTS:")
+    print(f"Accuracy: {accuracy:.1%}")
+    print(f"Precision: {precision:.1%}")
+    print(f"Recall: {recall:.1%}")
+    print(f"F1-Score: {f1:.1%}")
+    print(f"Threshold: {threshold:.6f}")
     
     # Visualization
     plt.figure(figsize=(15, 10))
@@ -306,13 +306,13 @@ def main():
     
     plt.tight_layout()
     plt.savefig('example_usage_results.png', dpi=150, bbox_inches='tight')
-    print(f"\n📁 Results saved to 'example_usage_results.png'")
+    print(f"\nResults saved to 'example_usage_results.png'")
     
     plt.show()
     
-    print(f"\n🎉 Example completed!")
-    print(f"💡 This demonstrates the CWT-LSTM autoencoder approach for gravitational wave detection.")
-    print(f"📚 For full analysis, run: python gravitational_wave_hunter/models/cwt_lstm_autoencoder.py")
+    print(f"\nExample completed!")
+    print(f"This demonstrates the CWT-LSTM autoencoder approach for gravitational wave detection.")
+    print(f"For full analysis, run: python gravitational_wave_hunter/models/cwt_lstm_autoencoder.py")
 
 if __name__ == "__main__":
     main()

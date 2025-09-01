@@ -52,7 +52,7 @@ Wave Passing:     (space stretches and squeezes)
          Detector
 ```
 
-### 📏 The Measurement
+### The Measurement
 1. **Laser beam** splits into two perpendicular 4-kilometer arms
 2. **Gravitational wave** passes through → one arm stretches, other compresses
 3. **Light travel time** changes by tiny amounts
@@ -67,7 +67,7 @@ Wave Passing:     (space stretches and squeezes)
 
 ## Signal Characteristics
 
-### 🎵 The "Chirp" Pattern
+### The "Chirp" Pattern
 
 Gravitational waves from merging black holes create a distinctive **chirp** pattern:
 
@@ -101,7 +101,7 @@ Frequency
    - Single black hole "rings" like a bell
    - Exponentially decaying amplitude
 
-### 🔢 Mathematical Description
+### Mathematical Description
 The frequency evolution follows:
 ```
 f(t) = f₀ × (time_to_merger)^(-3/8)
@@ -210,7 +210,7 @@ Our unsupervised ML approach could potentially discover:
 
 ---
 
-## 🎓 For Software Engineers
+## For Software Engineers
 
 Think of gravitational wave detection like:
 
@@ -246,7 +246,7 @@ strain_data + noise → preprocessing → CWT → LSTM_autoencoder
 
 ---
 
-## 📖 Further Reading
+## Further Reading
 
 ### Beginner Resources
 - [LIGO Educational Resources](https://www.ligo.caltech.edu/page/educational-resources)

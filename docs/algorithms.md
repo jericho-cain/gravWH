@@ -53,7 +53,7 @@ Where:
 - `b`: Translation parameter (time shift)
 - `*`: Complex conjugation
 
-### 🎵 Morlet Wavelet
+### Morlet Wavelet
 We use the **Morlet wavelet** optimized for gravitational wave analysis:
 
 ```math
@@ -80,7 +80,7 @@ scales = w * fs / (2 * frequencies * np.pi)  # w=6 for Morlet
 - **20-512 Hz range**: Advanced LIGO sensitivity curve
 - **Log spacing**: More resolution at low frequencies (longer wavelengths)
 
-### 🔄 Implementation Details
+### Implementation Details
 
 ```python
 def compute_cwt(strain_data, fs=512):
@@ -134,7 +134,7 @@ Time-Frequency:
 
 ## LSTM Autoencoder Architecture
 
-### 🧠 Neural Network Design
+### Neural Network Design
 
 Our LSTM autoencoder processes CWT scalograms through temporal sequence modeling:
 
@@ -150,7 +150,7 @@ Decoder: [32, 64, 128] → Reconstruction
 Output: Reconstructed Scalogram (32 × 2048)
 ```
 
-### 🔄 LSTM Cell Mathematics
+### LSTM Cell Mathematics
 
 Each LSTM cell implements:
 
@@ -217,7 +217,7 @@ Where:
 
 ## Training Strategy
 
-### 🎓 Unsupervised Learning Approach
+### Unsupervised Learning Approach
 
 **Core Philosophy**: Train only on noise to learn "normal" patterns.
 

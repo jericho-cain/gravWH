@@ -403,7 +403,7 @@ def plot_comprehensive_analysis(y_true, scores, snr_values=None):
     return fig, pr_results
 
 def main():
-    logger.info("📊 Comprehensive Precision-Recall Analysis")
+    logger.info("Comprehensive Precision-Recall Analysis")
     logger.info("=" * 50)
     
     # Configuration
@@ -412,7 +412,7 @@ def main():
     NUM_SAMPLES = 300  # More samples for better statistics
     SIGNAL_PROB = 0.3
     
-    logger.info(f"📊 Generating {NUM_SAMPLES} samples...")
+    logger.info(f"Generating {NUM_SAMPLES} samples...")
     
     # Generate data
     t = np.linspace(0, DURATION, int(SAMPLE_RATE * DURATION))
@@ -453,8 +453,8 @@ def main():
     labels = np.array(labels)
     snr_values = np.array(snr_values)
     
-    print(f"📈 Dataset: {strain_data.shape}")
-    print(f"🏷️ Signals: {np.sum(labels)}, Noise: {np.sum(1-labels)}")
+    print(f"Dataset: {strain_data.shape}")
+    print(f"Signals: {np.sum(labels)}, Noise: {np.sum(1-labels)}")
     
     # Compute CWT
     print(f"\n🌊 Computing CWT representations...")
@@ -464,7 +464,7 @@ def main():
     noise_indices = np.where(labels == 0)[0]
     noise_cwt = cwt_data[noise_indices]
     
-    print(f"\n🤖 Training autoencoder on {len(noise_cwt)} noise samples...")
+    print(f"\nTraining autoencoder on {len(noise_cwt)} noise samples...")
     
     noise_dataset = TensorDataset(torch.FloatTensor(noise_cwt).unsqueeze(1))
     noise_loader = DataLoader(noise_dataset, batch_size=8, shuffle=True)
@@ -476,29 +476,29 @@ def main():
     train_autoencoder(model, noise_loader, num_epochs=40, lr=0.001)
     
     # Get reconstruction errors for all samples
-    print(f"\n🔍 Computing reconstruction errors...")
+    print(f"\nComputing reconstruction errors...")
     test_dataset = TensorDataset(torch.FloatTensor(cwt_data).unsqueeze(1))
     test_loader = DataLoader(test_dataset, batch_size=8, shuffle=False)
     
     reconstruction_errors = get_reconstruction_errors(model, test_loader)
     
     # Create comprehensive analysis
-    print(f"\n📊 Creating precision-recall analysis...")
+    print(f"\nCreating precision-recall analysis...")
     
     fig, pr_results = plot_comprehensive_analysis(labels, reconstruction_errors, snr_values)
     
     # Print detailed results
-    print(f"\n📈 PRECISION-RECALL ANALYSIS RESULTS:")
+    print(f"\nPRECISION-RECALL ANALYSIS RESULTS:")
     print(f"=" * 50)
-    print(f"🎯 Average Precision: {pr_results['avg_precision']:.3f}")
-    print(f"🎯 Optimal Threshold: {pr_results['optimal_threshold']:.6f}")
-    print(f"📊 At Optimal Threshold:")
+    print(f"Average Precision: {pr_results['avg_precision']:.3f}")
+    print(f"Optimal Threshold: {pr_results['optimal_threshold']:.6f}")
+    print(f"At Optimal Threshold:")
     print(f"  • Precision: {pr_results['optimal_precision']:.1%}")
     print(f"  • Recall: {pr_results['optimal_recall']:.1%}")
     print(f"  • F1-Score: {pr_results['optimal_f1']:.1%}")
     
     # Test at different thresholds
-    print(f"\n📊 Performance at Different Percentile Thresholds:")
+    print(f"\nPerformance at Different Percentile Thresholds:")
     thresholds_to_test = np.percentile(reconstruction_errors, [70, 75, 80, 85, 90, 95])
     
     for percentile, thresh in zip([70, 75, 80, 85, 90, 95], thresholds_to_test):
@@ -514,7 +514,7 @@ def main():
         print(f"  {percentile:2d}% threshold: Prec={prec:.1%}, Rec={rec:.1%}, F1={f1:.1%}")
     
     # Interpretation
-    print(f"\n💡 INTERPRETATION:")
+    print(f"\nINTERPRETATION:")
     print(f"=" * 30)
     if pr_results['avg_precision'] > 0.7:
         print(f"✅ EXCELLENT: Average Precision > 0.7 indicates strong separation")
@@ -523,11 +523,11 @@ def main():
     else:
         print(f"⚠️ FAIR: Average Precision < 0.5 suggests difficulty in detection")
     
-    print(f"\n🎯 OPTIMAL OPERATING POINT:")
+    print(f"\nOPTIMAL OPERATING POINT:")
     if pr_results['optimal_precision'] > 0.8 and pr_results['optimal_recall'] > 0.3:
         print(f"✅ Excellent balance of precision and recall")
     elif pr_results['optimal_precision'] > 0.9:
-        print(f"🎯 Very conservative: High precision, low false alarms")
+        print(f"Very conservative: High precision, low false alarms")
         print(f"   Good for avoiding false discoveries in astronomy")
     else:
         print(f"⚠️ May need threshold tuning for specific use case")
@@ -537,7 +537,7 @@ def main():
     plt.show()
     
     # Generate standalone publication-quality figures
-    print("\n📊 Generating individual publication plots...")
+    print("\nGenerating individual publication plots...")
     
     # Figure 1: Precision-Recall Curve
     fig_pr, ax_pr = plt.subplots(figsize=(8, 6))
@@ -616,8 +616,8 @@ def main():
     if len(snr_breakdown) > 0:
         print(f"   - snr_performance.png")
     
-    print(f"\n🎉 Analysis complete!")
-    print(f"📁 Results saved to 'precision_recall_comprehensive_analysis.png'")
+    print(f"\nAnalysis complete!")
+    print(f"Results saved to 'precision_recall_comprehensive_analysis.png'")
     
     return pr_results
 

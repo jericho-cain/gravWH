@@ -33,7 +33,7 @@ Our approach addresses these challenges through:
    - Optimized for high precision (low false alarm rate)
    - Conservative approach suitable for astronomical discovery
 
-## 🏗️ Architecture
+## Architecture
 
 ### 1. Data Preprocessing Pipeline
 
@@ -105,7 +105,7 @@ class SimpleCWTAutoencoder(nn.Module):
 | 90% | 89.7% | 27.1% | 41.6% | **Discovery Mode** - Only clearest signals |
 | 95% | 80.0% | 12.5% | 21.6% | **Ultra-Conservative** - Avoid false discoveries |
 
-## 🎯 Real-World Applications
+## Real-World Applications
 
 ### 1. LIGO-Style Discovery Mode
 - **Threshold**: 90-95%
@@ -125,7 +125,7 @@ class SimpleCWTAutoencoder(nn.Module):
 - **Recall**: 68%
 - **Use**: Candidate event investigation
 
-## 🔬 Scientific Validation
+## Scientific Validation
 
 ### Comparison to Real LIGO
 - **LIGO Requirements**: >90% precision for discoveries
@@ -138,7 +138,7 @@ class SimpleCWTAutoencoder(nn.Module):
 - **SNR 12-16**: ~70% detection rate  
 - **SNR 16+**: >90% detection rate
 
-## 🚀 Usage Guide
+## Usage Guide
 
 ### Quick Start
 
@@ -174,7 +174,7 @@ python examples/precision_recall_analysis.py
 python examples/view_precision_recall_plots.py
 ```
 
-## 📈 Result Interpretation
+## Result Interpretation
 
 ### Understanding the Plots
 
@@ -199,7 +199,7 @@ python examples/view_precision_recall_plots.py
 3. **Conservative Approach**: Better for astronomy - avoids false discoveries
 4. **SNR Dependence**: Performance improves dramatically for stronger signals
 
-## 🔬 Technical Details
+## Technical Details
 
 ### Wavelet Choice: Morlet Wavelets
 - **Why Morlet**: Optimal for oscillatory signals with good time-frequency localization
@@ -217,7 +217,7 @@ python examples/view_precision_recall_plots.py
 - **Optimization**: Maximize F1-score for balanced performance
 - **Adaptive**: Can be tuned based on discovery requirements
 
-## 📚 Research Context
+## Research Context
 
 ### Relation to LIGO Methods
 - **LIGO uses**: Matched filtering + machine learning triggers
@@ -231,7 +231,7 @@ python examples/view_precision_recall_plots.py
 3. **Time-frequency anomaly detection** in astronomical signals
 4. **Professional-grade performance** from a novel deep learning approach
 
-## 🔮 Future Improvements
+## Future Improvements
 
 ### Short Term
 1. **Real LIGO data**: Test on actual LIGO Open Science Center data
@@ -244,7 +244,7 @@ python examples/view_precision_recall_plots.py
 3. **Real-time deployment**: Optimize for low-latency detection
 4. **Parameter estimation**: Not just detection, but mass/spin estimation
 
-## 🎯 Conclusion
+## Conclusion
 
 The CWT-LSTM autoencoder represents a **breakthrough in gravitational wave detection**:
 

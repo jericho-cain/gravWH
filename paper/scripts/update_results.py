@@ -38,9 +38,9 @@ def update_paper_results(results):
         
         # Check if we beat previous results
         if results['opt_precision'] > old_results.get('opt_precision', 0):
-            logger.info(f"🎉 NEW RECORD! Precision: {old_results.get('opt_precision', 0):.1%} → {results['opt_precision']:.1%}")
+            logger.info(f"NEW RECORD! Precision: {old_results.get('opt_precision', 0):.1%} → {results['opt_precision']:.1%}")
         else:
-            logger.info(f"📊 Updating results: {results['opt_precision']:.1%} precision")
+            logger.info(f"Updating results: {results['opt_precision']:.1%} precision")
     
     # Save new results with timestamp
     results['timestamp'] = datetime.now().isoformat()
@@ -186,7 +186,7 @@ if __name__ == "__main__":
         'avg_precision': 0.788     # Average precision
     }
     
-    logger.info("🔄 Updating paper with results...")
+    logger.info("Updating paper with results...")
     update_paper_results(results)
     
     # Optionally compile paper

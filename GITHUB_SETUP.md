@@ -1,4 +1,4 @@
-# 🚀 GitHub Repository Setup Guide
+# GitHub Repository Setup Guide
 
 ## Repository Description
 Use this for your GitHub repository description:
@@ -105,4 +105,4 @@ To host your documentation:
 
 ---
 
-**Your repository is now ready for public launch! 🚀**
+**Your repository is now ready for public launch!**

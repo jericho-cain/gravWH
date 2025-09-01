@@ -620,7 +620,7 @@ def train_autoencoder(
     model = model.to(device)
     model.train()
     
-    logger.info(f"🏃‍♂️ Training autoencoder for {num_epochs} epochs...")
+    logger.info(f"Training autoencoder for {num_epochs} epochs...")
     
     losses = []
     
@@ -744,7 +744,7 @@ def main() -> None:
     NUM_SAMPLES = 200
     SIGNAL_PROB = 0.3
     
-    logger.info(f"📊 Generating {NUM_SAMPLES} samples...")
+    logger.info(f"Generating {NUM_SAMPLES} samples...")
     
     # Generate realistic data
     t = np.linspace(0, DURATION, int(SAMPLE_RATE * DURATION))
@@ -790,8 +790,8 @@ def main() -> None:
         labels = np.array(labels)
         snr_values = np.array(snr_values)
         
-        logger.info(f"📈 Dataset: {strain_data.shape}")
-        logger.info(f"🏷️ Signals: {np.sum(labels)}, Noise: {np.sum(1-labels)}")
+        logger.info(f"Dataset: {strain_data.shape}")
+        logger.info(f"Signals: {np.sum(labels)}, Noise: {np.sum(1-labels)}")
     except Exception as e:
         logger.error(f"❌ Error converting to numpy arrays: {e}")
         logger.error(f"strain_data length: {len(strain_data) if strain_data else 'None'}")
@@ -810,9 +810,9 @@ def main() -> None:
     # Use only noise data for training autoencoder
     noise_cwt = cwt_data[noise_indices]
     
-    logger.info(f"\n🎯 Training Strategy:")
-    logger.info(f"📚 Training autoencoder on {len(noise_cwt)} NOISE-ONLY CWT scalograms")
-    logger.info(f"🧪 Testing on ALL {len(cwt_data)} samples")
+    logger.info(f"\nTraining Strategy:")
+    logger.info(f"Training autoencoder on {len(noise_cwt)} NOISE-ONLY CWT scalograms")
+    logger.info(f"Testing on ALL {len(cwt_data)} samples")
     
     # Create datasets
     noise_dataset = TensorDataset(torch.FloatTensor(noise_cwt).unsqueeze(1))  # Add channel dim
@@ -825,7 +825,7 @@ def main() -> None:
     height, width = cwt_data.shape[1], cwt_data.shape[2]
     model = CWT_LSTM_Autoencoder(input_height=height, input_width=width, latent_dim=16, lstm_hidden=32)
     
-    logger.info(f"\n🏗️ Model architecture:")
+    logger.info(f"\nModel architecture:")
     logger.info(f"  Input: {height}×{width} CWT scalogram")
     logger.info(f"  Model: CWT-LSTM Autoencoder")
     logger.info(f"  Latent dimension: 16")
@@ -835,7 +835,7 @@ def main() -> None:
     train_losses = train_autoencoder(model, noise_loader, num_epochs=30, lr=0.001)
     
     # Detect anomalies
-    logger.info(f"\n🔍 Detecting anomalies...")
+    logger.info(f"\nDetecting anomalies...")
     results = detect_anomalies(model, test_loader, noise_threshold_percentile=90)
     
     # Evaluate performance
@@ -862,13 +862,13 @@ def main() -> None:
     else:
         auc = 0.5
     
-    logger.info(f"\n📊 CWT-LSTM Autoencoder Results:")
-    logger.info(f"🎯 Accuracy: {accuracy:.1%}")
-    logger.info(f"🔍 Precision: {precision:.1%}")
-    logger.info(f"📈 Recall: {recall:.1%}")
-    logger.info(f"⚖️ F1-Score: {f1:.1%}")
-    logger.info(f"📈 AUC: {auc:.3f}")
-    logger.info(f"🚨 Threshold: {results['threshold']:.6f}")
+    logger.info(f"\nCWT-LSTM Autoencoder Results:")
+    logger.info(f"Accuracy: {accuracy:.1%}")
+    logger.info(f"Precision: {precision:.1%}")
+    logger.info(f"Recall: {recall:.1%}")
+    logger.info(f"F1-Score: {f1:.1%}")
+    logger.info(f"AUC: {auc:.3f}")
+    logger.info(f"Threshold: {results['threshold']:.6f}")
     
     # Create comprehensive visualizations
     plt.figure(figsize=(20, 16))
@@ -1011,7 +1011,7 @@ def main() -> None:
     plt.close()  # Close instead of show to avoid interactive plot
     
     # Generate standalone publication-quality figures
-    logger.info("\n📊 Generating individual publication plots...")
+    logger.info("\nGenerating individual publication plots...")
     
     # Import metrics at the top to avoid scope conflicts
     from sklearn.metrics import precision_recall_curve, roc_curve as sklearn_roc_curve, auc
@@ -1049,10 +1049,10 @@ def main() -> None:
         precision_90 = recall_90 = threshold_90 = None
     
     # Print key operating points
-    logger.info(f"\n📊 Key Operating Points:")
-    logger.info(f"🏆 Maximum Precision: {max_precision:.1%} (Recall: {max_precision_recall:.1%})")
+    logger.info(f"\nKey Operating Points:")
+    logger.info(f"Maximum Precision: {max_precision:.1%} (Recall: {max_precision_recall:.1%})")
     if precision_90 is not None:
-        logger.info(f"🎯 Best ≥90% Precision: {precision_90:.1%} (Recall: {recall_90:.1%})")
+        logger.info(f"Best ≥90% Precision: {precision_90:.1%} (Recall: {recall_90:.1%})")
     else:
         logger.warning(f"⚠️ No points found with ≥90% precision")
     logger.info(f"⚖️ Optimal F1: Precision {precision[optimal_idx]:.1%}, Recall {recall[optimal_idx]:.1%}")
@@ -1168,7 +1168,7 @@ def main() -> None:
         logger.info(f"   - snr_performance.png")
     
     # Auto-update paper with new results
-    logger.info(f"\n📄 Auto-updating paper...")
+    logger.info(f"\nAuto-updating paper...")
     try:
         import sys
         import os
@@ -1193,13 +1193,13 @@ def main() -> None:
     except Exception as e:
         logger.warning(f"⚠️ Paper update failed: {e}")
     
-    logger.info(f"\n🎉 Analysis Complete!")
-    logger.info(f"💡 Key Insights:")
+    logger.info(f"\nAnalysis Complete!")
+    logger.info(f"Key Insights:")
     logger.info(f"  • CWT captures frequency evolution of gravitational wave chirps")
     logger.info(f"  • Autoencoder learns 'normal' noise patterns in time-frequency domain")
     logger.info(f"  • Anomalies (GW signals) have higher reconstruction error")
     logger.info(f"  • This approach is used in real LIGO data analysis!")
-    logger.info(f"📈 Results saved to 'cwt_lstm_autoencoder_results.png'")
+    logger.info(f"Results saved to 'cwt_lstm_autoencoder_results.png'")
 
 if __name__ == "__main__":
     main()

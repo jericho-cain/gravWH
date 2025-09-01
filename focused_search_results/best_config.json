@@ -1,0 +1,11 @@
+{
+  "config": {
+    "latent_dim": 12,
+    "lstm_hidden": 24,
+    "learning_rate": 0.001,
+    "batch_size": 8,
+    "epochs": 15
+  },
+  "score": 0.7891014396687108,
+  "timestamp": "2025-09-01T12:01:59.831931"
+}

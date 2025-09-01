@@ -4,7 +4,7 @@ Gravitational Wave Hunter
 A deep learning framework for gravitational wave detection in open astronomical data.
 """
 
-__version__ = "0.1.1"
+__version__ = "0.1.2"
 __author__ = "Gravitational Wave Research Team"
 __email__ = "contact@gravitational-wave-hunter.org"
 

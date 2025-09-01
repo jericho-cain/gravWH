@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "gravitational-wave-hunter"
-version = "0.1.1"
+version = "0.1.2"
 description = "Deep learning framework for gravitational wave detection in open astronomical data"
 readme = "README.md"
 license = {text = "MIT"}
@@ -127,7 +127,7 @@ known_first_party = ["gravitational_wave_hunter"]
 known_third_party = ["torch", "numpy", "scipy", "matplotlib", "pandas", "astropy", "gwpy", "pycbc"]
 
 [tool.mypy]
-python_version = "0.1.1"
+python_version = "0.1.2"
 warn_return_any = true
 warn_unused_configs = true
 disallow_untyped_defs = true

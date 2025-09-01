@@ -1,21 +1,23 @@
 """
-CWT-LSTM Autoencoder for Gravitational Wave Detection
+Gravitational Wave Hunter
 
-A breakthrough approach achieving 92.3% precision with 67.6% recall in gravitational 
-wave detection using Continuous Wavelet Transform (CWT) preprocessing combined with 
-LSTM autoencoder architecture for robust signal identification in noisy data.
-
-This package provides the complete implementation of the CWT-LSTM autoencoder
-model with example usage and comprehensive analysis tools.
+A deep learning framework for gravitational wave detection in open astronomical data.
 """
 
-from .models import SimpleCWTAutoencoder
+__version__ = "0.1.1"
+__author__ = "Gravitational Wave Research Team"
+__email__ = "contact@gravitational-wave-hunter.org"
 
-__version__ = "1.0.0"
-__author__ = "CWT-LSTM Research Team"
-__description__ = "CWT-LSTM Autoencoder for gravitational wave detection"
-__license__ = "MIT"
+# Import main modules
+from .models.cwt_lstm_autoencoder import CWT_LSTM_Autoencoder, SimpleCWTAutoencoder
+from .data.generation import generate_realistic_chirp, generate_colored_noise
 
 __all__ = [
+    "__version__",
+    "__author__", 
+    "__email__",
+    "CWT_LSTM_Autoencoder",
     "SimpleCWTAutoencoder",
+    "generate_realistic_chirp",
+    "generate_colored_noise",
 ]

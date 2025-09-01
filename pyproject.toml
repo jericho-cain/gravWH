@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "gravitational-wave-hunter"
-version = "0.1.0"
+version = "0.1.1"
 description = "Deep learning framework for gravitational wave detection in open astronomical data"
 readme = "README.md"
 license = {text = "MIT"}
@@ -99,6 +99,8 @@ include = ["gravitational_wave_hunter*"]
 [tool.setuptools.package-data]
 gravitational_wave_hunter = ["data/*", "models/*"]
 
+
+
 [tool.black]
 line-length = 88
 target-version = ['py38', 'py39', 'py310', 'py311']
@@ -125,7 +127,7 @@ known_first_party = ["gravitational_wave_hunter"]
 known_third_party = ["torch", "numpy", "scipy", "matplotlib", "pandas", "astropy", "gwpy", "pycbc"]
 
 [tool.mypy]
-python_version = "3.8"
+python_version = "0.1.1"
 warn_return_any = true
 warn_unused_configs = true
 disallow_untyped_defs = true
@@ -185,5 +187,5 @@ exclude_lines = [
     "raise AssertionError",
     "raise NotImplementedError",
     "if 0:",
-    "if __name__ == .__main__.:"
+    "if __name__ == '__main__':"
 ]

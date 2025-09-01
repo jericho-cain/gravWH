@@ -383,12 +383,16 @@ class CWT_LSTM_Autoencoder(nn.Module):
             dropout=0.2
         )
         
-        # Spatial decoder
+        # Spatial decoder - simplified to match the encoder structure
         self.spatial_decoder = nn.Sequential(
+            nn.Linear(lstm_hidden, 32 * 8 * (input_width // 4)),  # Expand to spatial features
+            nn.ReLU(),
+            nn.Unflatten(1, (32, 8, input_width // 4)),  # Reshape to spatial dimensions
             nn.ConvTranspose2d(32, 16, kernel_size=3, padding=1),
             nn.ReLU(),
             nn.Upsample(scale_factor=2, mode='bilinear', align_corners=False),
-            nn.ConvTranspose2d(16, 1, kernel_size=3, padding=1),
+            nn.ConvTranspose2d(16, 1, kernel_size=3, padding=1),  # Remove output_padding
+            nn.AdaptiveAvgPool2d((input_height, input_width)),  # Ensure exact output dimensions
             nn.Tanh()  # Output in [-1, 1] range
         )
         
@@ -456,14 +460,11 @@ class CWT_LSTM_Autoencoder(nn.Module):
         # Temporal decoding
         temporal_out, _ = self.temporal_decoder(sequence)  # (batch, time, lstm_hidden)
         
-        # Reshape for spatial decoding
-        spatial_input = temporal_out.view(-1, 32, 8, sequence_length)  # Assume 32*8 = lstm_hidden
+        # Use the last output from the LSTM for reconstruction
+        last_output = temporal_out[:, -1, :]  # (batch, lstm_hidden)
         
-        # Spatial decoding
-        reconstructed = self.spatial_decoder(spatial_input)  # (batch*time, 1, height, width)
-        
-        # Reshape back
-        reconstructed = reconstructed.view(batch_size, 1, self.input_height, self.input_width)
+        # Spatial decoding - directly from the last LSTM output
+        reconstructed = self.spatial_decoder(last_output)  # (batch, 1, height, width)
         
         return reconstructed
     
@@ -822,11 +823,13 @@ def main() -> None:
     
     # Create and train model
     height, width = cwt_data.shape[1], cwt_data.shape[2]
-    model = SimpleCWTAutoencoder(height, width, latent_dim=64)
+    model = CWT_LSTM_Autoencoder(input_height=height, input_width=width, latent_dim=16, lstm_hidden=32)
     
     logger.info(f"\n🏗️ Model architecture:")
     logger.info(f"  Input: {height}×{width} CWT scalogram")
-    logger.info(f"  Latent dimension: 64")
+    logger.info(f"  Model: CWT-LSTM Autoencoder")
+    logger.info(f"  Latent dimension: 16")
+    logger.info(f"  LSTM hidden size: 32")
     
     # Train autoencoder
     train_losses = train_autoencoder(model, noise_loader, num_epochs=30, lr=0.001)
@@ -1005,7 +1008,7 @@ def main() -> None:
     
     plt.tight_layout()
     plt.savefig('results/cwt_lstm_autoencoder_results.png', dpi=150, bbox_inches='tight')
-    plt.show()
+    plt.close()  # Close instead of show to avoid interactive plot
     
     # Generate standalone publication-quality figures
     logger.info("\n📊 Generating individual publication plots...")

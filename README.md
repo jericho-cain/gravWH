@@ -14,10 +14,10 @@
 This project implements a breakthrough approach to gravitational wave detection using **Continuous Wavelet Transform (CWT) combined with LSTM Autoencoders**. Our method achieves professional-grade performance:
 
 - **Optimal Performance** 
-- **90.6% Precision** (exceeds LIGO >90% requirement!)
+- **92.3% Precision** (exceeds LIGO >90% requirement!)
 - **67.6% Recall** (catches most real signals)
 - **Excellent Balance** (precision + sensitivity)
-- **AUC: 0.821** (strong discriminative power)
+- **AUC: 0.806** (strong discriminative power)
 
 ## Why This Approach Works
 
@@ -79,10 +79,10 @@ The repository includes an automated LaTeX paper update system:
 
 | Metric | Value | Benchmark |
 |--------|-------|-----------|
-| **Average Precision** | 0.788 | >0.7 = Professional grade |
-| **Precision** | 90.6% | **EXCEEDS** LIGO's >90% requirement! |
+| **Average Precision** | 0.780 | >0.7 = Professional grade |
+| **Precision** | 92.3% | **EXCEEDS** LIGO's >90% requirement! |
 | **Recall** | 67.6% | Catches most real gravitational waves |
-| **AUC Score** | 0.811 | Strong discrimination ability |
+| **AUC Score** | 0.806 | Strong discrimination ability |
 
 ### Performance vs Threshold
 

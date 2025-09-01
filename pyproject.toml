@@ -70,8 +70,7 @@ dev = [
     "pre-commit>=2.20.0",
     "sphinx>=5.0.0",
     "sphinx-rtd-theme>=1.0.0",
-    "nbsphinx>=0.8.0",
-    "bump2version>=1.0.1"
+    "nbsphinx>=0.8.0"
 ]
 docs = [
     "sphinx>=5.0.0",
@@ -100,20 +99,7 @@ include = ["gravitational_wave_hunter*"]
 [tool.setuptools.package-data]
 gravitational_wave_hunter = ["data/*", "models/*"]
 
-[tool.bumpversion]
-current_version = "0.1.1"
-commit = true
-tag = true
-parse = (?P<major>\d+)\.(?P<minor>\d+)\.(?P<patch>\d+)
-serialize = {major}.{minor}.{patch}
 
-[tool.bumpversion.file:pyproject.toml]
-search = version = "0.1.1"
-replace = version = "0.1.1"
-
-[tool.bumpversion.file:gravitational_wave_hunter/__init__.py]
-search = __version__ = "{current_version}"
-replace = __version__ = "{new_version}"
 
 [tool.black]
 line-length = 88

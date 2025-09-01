@@ -18,6 +18,11 @@ jobs:
     steps:
     - uses: actions/checkout@v4
     
+    - name: Clear Python cache
+      run: |
+        rm -rf ~/.cache/pip
+        rm -rf ~/.local/lib/python*
+    
     - name: Set up Python ${{ matrix.python-version }}
       uses: actions/setup-python@v4
       with:
@@ -27,8 +32,9 @@ jobs:
       uses: actions/cache@v3
       with:
         path: ~/.cache/pip
-        key: ${{ runner.os }}-pip-${{ hashFiles('**/pyproject.toml') }}
+        key: ${{ runner.os }}-pip-${{ matrix.python-version }}-${{ hashFiles('**/pyproject.toml') }}
         restore-keys: |
+          ${{ runner.os }}-pip-${{ matrix.python-version }}-
           ${{ runner.os }}-pip-
     
     - name: Install dependencies

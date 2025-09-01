@@ -7,6 +7,7 @@
 [![Python 3.11+](https://img.shields.io/badge/python-3.11+-blue.svg)](https://www.python.org/downloads/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Deep Learning](https://img.shields.io/badge/Deep%20Learning-PyTorch-red.svg)](https://pytorch.org/)
+[![Version](https://img.shields.io/badge/version-0.1.1-blue.svg)](https://github.com/jericho-cain/gravWH/releases)
 
 ## Overview
 

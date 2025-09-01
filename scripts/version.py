@@ -30,7 +30,7 @@ def run_command(cmd, check=True):
 def get_current_version():
     """Get current version from pyproject.toml using regex."""
     try:
-        with open("pyproject.toml", "r") as f:
+        with open("pyproject.toml", "r", encoding="utf-8") as f:
             content = f.read()
         
         # Find version line
@@ -49,17 +49,18 @@ def update_version_files(new_version):
     """Update version in all relevant files."""
     files_to_update = [
         ("pyproject.toml", r'version\s*=\s*"[^"]+"', f'version = "{new_version}"'),
-        ("gravitational_wave_hunter/__init__.py", r'__version__\s*=\s*"[^"]+"', f'__version__ = "{new_version}"')
+        ("gravitational_wave_hunter/__init__.py", r'__version__\s*=\s*"[^"]+"', f'__version__ = "{new_version}"'),
+        ("README.md", r'\[!\[Version\]\(https://img\.shields\.io/badge/version-[^)]+\)\]\([^)]+\)', f'[![Version](https://img.shields.io/badge/version-{new_version}-blue.svg)](https://github.com/jericho-cain/gravWH/releases)')
     ]
     
     for file_path, pattern, replacement in files_to_update:
         try:
-            with open(file_path, "r") as f:
+            with open(file_path, "r", encoding="utf-8") as f:
                 content = f.read()
             
             updated_content = re.sub(pattern, replacement, content)
             
-            with open(file_path, "w") as f:
+            with open(file_path, "w", encoding="utf-8") as f:
                 f.write(updated_content)
             
             print(f"Updated {file_path} to version {new_version}")

@@ -41,7 +41,7 @@ Gravitational waves are incredibly weak signals (amplitude ~10⁻²¹) that are:
 ### Installation
 
 ```bash
-git clone https://github.com/yourusername/gravitational_wave_hunter.git
+git clone https://github.com/jericho-cain/gravitational_wave_hunter.git
 cd gravitational_wave_hunter
 pip install -r requirements.txt
 pip install PyWavelets  # For CWT functionality
@@ -116,7 +116,7 @@ test_samples → reconstruction_error → threshold → GW_detection
 
 ### Comparison to LIGO Performance
 - **LIGO Requirements**: >90% precision for official discoveries
-- **Our Model**: 90.6% precision with 67.6% recall - **EXCEEDS** LIGO standards with excellent sensitivity
+- **Our Model**: 92.3% precision with 67.6% recall - **EXCEEDS** LIGO standards with excellent sensitivity
 - **SNR Range**: Effective detection for signals with SNR > 10
 - **Detection Rate**: >90% for strong signals (SNR > 16)
 
@@ -155,23 +155,46 @@ gravitational_wave_hunter/
 │   ├── cwt_lstm_autoencoder_guide.md  # Complete model guide
 │   ├── algorithms.md               # Technical algorithm details
 │   ├── physics.md                  # Physics background (for non-physicists)
-│   └── api.md                      # API reference
+│   ├── api.md                      # API reference
+│   └── versioning.md               # Version management
 ├── gravitational_wave_hunter/      # Core package
 │   └── models/
 │       └── cwt_lstm_autoencoder.py # Main CWT-LSTM model
 ├── examples/                       # Analysis scripts  
-│   └── precision_recall_analysis.py # Performance analysis
+│   ├── example_usage.py            # Basic usage example
+│   ├── precision_recall_analysis.py # Performance analysis
+│   └── view_precision_recall_plots.py # Plot visualization
 ├── paper/                          # Research paper with auto-updates
 │   ├── main.tex                    # Complete LaTeX paper
 │   ├── main.pdf                    # Auto-generated PDF
 │   ├── sections/results.tex        # Auto-updating results
 │   ├── figures/                    # Publication-quality plots
+│   ├── data/results.json           # Results data
 │   └── scripts/update_results.py   # Automation system
 ├── results/                        # Generated plots and results
 │   ├── precision_recall_curve.png  # Main precision-recall curve
 │   ├── roc_curve.png              # ROC analysis
-│   └── snr_performance_standalone.png # SNR performance
-└── requirements.txt                # Dependencies
+│   ├── snr_performance_standalone.png # SNR performance
+│   └── precision_recall_comprehensive_analysis.png # Detailed analysis
+├── tests/                          # Test suite
+│   ├── test_cwt_preprocessing.py   # CWT preprocessing tests
+│   ├── test_data_generation.py     # Data generation tests
+│   ├── test_evaluation.py          # Evaluation tests
+│   ├── test_model_architecture.py  # Model architecture tests
+│   └── test_training.py            # Training tests
+├── scripts/                        # Utility scripts
+│   └── version.py                  # Version management
+├── quick_test_results/             # Hyperparameter optimization results
+├── focused_search_results/         # Focused hyperparameter search results
+├── htmlcov/                        # Test coverage reports
+├── assets/                         # Repository assets
+│   ├── github_banner.png           # GitHub banner image
+│   └── github_banner.py            # Banner generation script
+├── pyproject.toml                  # Project configuration
+├── requirements.txt                # Dependencies
+├── LICENSE                         # MIT License
+├── CHANGELOG.md                    # Version history
+└── GITHUB_SETUP.md                 # GitHub setup guide
 ```
 
 ## Key Features
@@ -226,4 +249,4 @@ For questions, suggestions, or collaborations:
 
 ---
 
-**🌌 "Hunting gravitational waves with the power of deep learning and signal processing!"**
+**"Hunting gravitational waves with the power of deep learning and signal processing!"**

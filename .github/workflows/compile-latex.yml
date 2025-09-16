@@ -10,7 +10,7 @@ on:
     paths:
       - 'paper/**'
 
-jobs:
+permissions:`n  contents: write`n`njobs:
   build:
     runs-on: ubuntu-latest
     

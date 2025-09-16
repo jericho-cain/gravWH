@@ -1,0 +1,46 @@
+name: Compile LaTeX Paper
+
+on:
+  push:
+    branches: [ main ]
+    paths: 
+      - 'paper/**'
+  pull_request:
+    branches: [ main ]
+    paths:
+      - 'paper/**'
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+      
+    - name: Compile LaTeX document
+      uses: xu-cheng/latex-action@v3
+      with:
+        root_file: main.tex
+        working_directory: paper
+        compiler: latexmk
+        args: -pdf -file-line-error -halt-on-error -interaction=nonstopmode
+        extra_system_packages: "py-pygments"
+
+        
+    - name: Upload PDF artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: paper-pdf
+        path: paper/main.pdf
+        
+    - name: Commit PDF back to repository
+      if: github.ref == 'refs/heads/main'
+      run: |
+        git config --local user.email "action@github.com"
+        git config --local user.name "GitHub Action"
+        git add paper/main.pdf
+        git diff --staged --quiet || git commit -m "Auto-generate PDF from LaTeX [skip ci]"
+        git push https://${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

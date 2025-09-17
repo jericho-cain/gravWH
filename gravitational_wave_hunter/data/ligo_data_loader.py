@@ -283,8 +283,8 @@ class LIGODataLoader:
             Dictionary containing strain data and metadata, or None if failed
         """
         import time
-        max_retries = 3
-        timeout = 30  # seconds
+        max_retries = 5
+        timeout = 60  # seconds - increased for slow network periods
         
         for attempt in range(max_retries):
             try:
@@ -324,7 +324,7 @@ class LIGODataLoader:
             except Exception as e:
                 logger.warning(f"Attempt {attempt + 1} failed: {e}")
                 if attempt < max_retries - 1:
-                    wait_time = 2 ** attempt  # Exponential backoff
+                    wait_time = 5 * (2 ** attempt)  # Longer exponential backoff
                     logger.info(f"Retrying in {wait_time} seconds...")
                     time.sleep(wait_time)
                 else:

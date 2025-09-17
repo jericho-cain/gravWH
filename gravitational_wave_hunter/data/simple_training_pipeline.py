@@ -96,6 +96,9 @@ class SimpleTrainingPipeline:
                     if successful_downloads % 10 == 0:
                         logger.info(f" Downloaded {successful_downloads}/{num_samples} training samples")
                         
+            except KeyboardInterrupt:
+                logger.warning(f" Network timeout for period {gps_time} - skipping")
+                # Continue to next period
             except Exception as e:
                 logger.warning(f" Failed to download period {gps_time}: {e}")
                 # Continue to next period

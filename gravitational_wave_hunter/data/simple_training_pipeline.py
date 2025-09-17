@@ -89,13 +89,9 @@ class SimpleTrainingPipeline:
         """
         logger.info(f" Downloading {num_samples} test samples...")
         
-        # Known gravitational wave events
+        # Known gravitational wave events (only those available in data loader)
         gw_events = [
-            'GW150914', 'GW151012', 'GW151226', 'GW170104', 'GW170608',
-            'GW170729', 'GW170809', 'GW170814', 'GW170817', 'GW170818',
-            'GW170823', 'GW190408_181802', 'GW190412', 'GW190413_052954',
-            'GW190413_134308', 'GW190421_213856', 'GW190424_180648',
-            'GW190503_185404', 'GW190512_180714', 'GW190513_205428'
+            'GW150914', 'GW151226', 'GW170104', 'GW170608', 'GW170814', 'GW170817'
         ]
         
         strain_data = []
@@ -112,16 +108,16 @@ class SimpleTrainingPipeline:
                     labels.append(1)  # Signal
                     snr_values.append(10.0)  # Assume SNR of 10 for real events
                 else:
-                    # Fallback to synthetic data
-                    gps_time = 1167210000 + i * 1000
+                    # Fallback to clean O1 data (no signals)
+                    gps_time = 1126250000 + i * 1000  # Use working O1 periods
                     data = self.data_loader.download_strain_data('H1', gps_time, 4, 4096)
                     if data:
                         strain_data.append(data['strain'])
                         labels.append(0)  # Noise
                         snr_values.append(0.0)  # No signal
             else:
-                # Generate noise samples
-                gps_time = 1167210000 + i * 1000
+                # Generate noise samples using working O1 periods
+                gps_time = 1126250000 + i * 1000  # Use working O1 periods
                 data = self.data_loader.download_strain_data('H1', gps_time, 4, 4096)
                 if data:
                     strain_data.append(data['strain'])
@@ -153,9 +149,25 @@ class SimpleTrainingPipeline:
         logger.info(" Starting model training...")
         
         # Preprocess data with CWT
-        logger.info(" Preprocessing data with CWT...")
-        train_cwt = preprocess_with_cwt(train_data)
-        test_cwt = preprocess_with_cwt(test_data)
+        logger.info("Preprocessing data with CWT...")
+        sample_rate = 4096  # Standard LIGO sample rate
+        
+        # Debug: Check data before preprocessing
+        logger.info(f"Train data shape: {train_data.shape}, min: {train_data.min():.6f}, max: {train_data.max():.6f}")
+        logger.info(f"Test data shape: {test_data.shape}, min: {test_data.min():.6f}, max: {test_data.max():.6f}")
+        
+        train_cwt = preprocess_with_cwt(train_data, sample_rate)
+        test_cwt = preprocess_with_cwt(test_data, sample_rate)
+        
+        # Debug: Check CWT data
+        logger.info(f"Train CWT shape: {train_cwt.shape}, min: {train_cwt.min():.6f}, max: {train_cwt.max():.6f}")
+        logger.info(f"Test CWT shape: {test_cwt.shape}, min: {test_cwt.min():.6f}, max: {test_cwt.max():.6f}")
+        
+        # Check for NaN or infinite values
+        if np.any(np.isnan(train_cwt)) or np.any(np.isinf(train_cwt)):
+            logger.error("NaN or infinite values in train CWT data!")
+        if np.any(np.isnan(test_cwt)) or np.any(np.isinf(test_cwt)):
+            logger.error("NaN or infinite values in test CWT data!")
         
         # Convert to tensors
         train_tensor = torch.FloatTensor(train_cwt).unsqueeze(1)  # Add channel dimension
@@ -207,6 +219,29 @@ class SimpleTrainingPipeline:
     
     def _calculate_metrics(self, y_true, scores, snr_values):
         """Calculate evaluation metrics."""
+        # Check for NaN values and handle them
+        if np.any(np.isnan(scores)):
+            logger.warning("NaN values detected in scores, replacing with 0")
+            scores = np.nan_to_num(scores, nan=0.0)
+        
+        if len(np.unique(y_true)) < 2:
+            logger.warning("Only one class present in y_true, returning dummy metrics")
+            return {
+                'precision': np.array([1.0]),
+                'recall': np.array([1.0]),
+                'thresholds': np.array([0.0]),
+                'avg_precision': 0.5,
+                'fpr': np.array([0.0, 1.0]),
+                'tpr': np.array([0.0, 1.0]),
+                'auc': 0.5,
+                'optimal_threshold': 0.0,
+                'optimal_f1': 0.0,
+                'optimal_precision': 0.0,
+                'optimal_recall': 0.0,
+                'scores': scores,
+                'snr_values': snr_values
+            }
+        
         # Calculate precision-recall curve
         precision, recall, thresholds = precision_recall_curve(y_true, scores)
         avg_precision = average_precision_score(y_true, scores)

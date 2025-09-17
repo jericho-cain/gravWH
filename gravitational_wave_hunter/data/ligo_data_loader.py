@@ -282,42 +282,53 @@ class LIGODataLoader:
         Optional[Dict]
             Dictionary containing strain data and metadata, or None if failed
         """
-        try:
-            logger.info(f"Downloading {detector} data using GWpy fetch_open_data...")
-            
-            # Use fetch_open_data for public LIGO data
-            strain = TimeSeries.fetch_open_data(detector, start_time, end_time)
-            
-            # Extract data
-            strain_data = strain.value
-            times_data = strain.times.value
-            
-            logger.info(f"Downloaded {len(strain_data)} samples")
-            logger.info(f"   Sample rate: {strain.sample_rate.value} Hz")
-            logger.info(f"   Duration: {len(strain_data) / strain.sample_rate.value:.2f} seconds")
-            
-            # Cache the data
-            np.savez(cache_file, 
-                   strain=strain_data,
-                   times=times_data,
-                   sample_rate=strain.sample_rate.value)
-            logger.info(f"Data cached: {cache_file}")
-            
-            return {
-                'strain': strain_data,
-                'times': times_data,
-                'sample_rate': strain.sample_rate.value,
-                'detector': detector,
-                'start_time': start_time,
-                'end_time': end_time,
-                'run': run_name,
-                'cached': False,
-                'source': 'GWOSC open data'
-            }
-            
-        except Exception as e:
-            logger.error(f"Error downloading with GWpy: {e}")
-            return None
+        import time
+        max_retries = 3
+        timeout = 30  # seconds
+        
+        for attempt in range(max_retries):
+            try:
+                logger.info(f"Downloading {detector} data using GWpy fetch_open_data... (attempt {attempt + 1}/{max_retries})")
+                
+                # Use fetch_open_data for public LIGO data with timeout
+                strain = TimeSeries.fetch_open_data(detector, start_time, end_time, timeout=timeout)
+                
+                # Extract data
+                strain_data = strain.value
+                times_data = strain.times.value
+                
+                logger.info(f"Downloaded {len(strain_data)} samples")
+                logger.info(f"   Sample rate: {strain.sample_rate.value} Hz")
+                logger.info(f"   Duration: {len(strain_data) / strain.sample_rate.value:.2f} seconds")
+                
+                # Cache the data
+                np.savez(cache_file, 
+                       strain=strain_data,
+                       times=times_data,
+                       sample_rate=strain.sample_rate.value)
+                logger.info(f"Data cached: {cache_file}")
+                
+                return {
+                    'strain': strain_data,
+                    'times': times_data,
+                    'sample_rate': strain.sample_rate.value,
+                    'detector': detector,
+                    'start_time': start_time,
+                    'end_time': end_time,
+                    'run': run_name,
+                    'cached': False,
+                    'source': 'GWOSC open data'
+                }
+                
+            except Exception as e:
+                logger.warning(f"Attempt {attempt + 1} failed: {e}")
+                if attempt < max_retries - 1:
+                    wait_time = 2 ** attempt  # Exponential backoff
+                    logger.info(f"Retrying in {wait_time} seconds...")
+                    time.sleep(wait_time)
+                else:
+                    logger.error(f"All {max_retries} attempts failed for {detector} at {start_time}")
+                    return None
     
     
     def _find_observing_run(self, gps_time: int) -> Optional[Dict]:

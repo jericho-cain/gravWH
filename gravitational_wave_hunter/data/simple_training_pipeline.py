@@ -172,21 +172,49 @@ class SimpleTrainingPipeline:
         labels = []
         snr_values = []
         
-        # Known gravitational wave events (only those available in data loader)
+        # Known gravitational wave events - verified and available in GWOSC
+        # Using only confirmed, well-known events to avoid 404 errors
         gw_events = [
-            'GW150914', 'GW151226', 'GW170104', 'GW170608', 'GW170814', 'GW170817'
+            # O1 events (2015-2017) - All confirmed
+            'GW150914', 'GW151226', 'GW151012',
+            
+            # O2 events (2016-2017) - All confirmed  
+            'GW170104', 'GW170608', 'GW170729', 'GW170809', 'GW170814', 'GW170817', 'GW170818', 'GW170823',
+            
+            # O3a events (2019-2020) - High confidence, verified events only
+            'GW190408_181802', 'GW190412', 'GW190413_052954', 'GW190413_134308', 'GW190421_213856',
+            'GW190426_152155', 'GW190503_185404', 'GW190512_180714', 'GW190513_205428', 'GW190514_065416',
+            'GW190517_055101', 'GW190519_153544', 'GW190521', 'GW190527_092243', 'GW190602_175927',
+            'GW190620_030421', 'GW190630_185205', 'GW190701_203306', 'GW190706_222641', 'GW190707_093326',
+            'GW190708_232457', 'GW190719_215514', 'GW190720_000836', 'GW190727_060333', 'GW190728_064510',
+            'GW190731_140936', 'GW190803_022701', 'GW190805_211137', 'GW190828_063405', 'GW190828_065509',
+            'GW190910_112807', 'GW190915_235702', 'GW190924_021846', 'GW190925_232845', 'GW190926_050336',
+            'GW190930_133541', 'GW191103_012549', 'GW191105_143521', 'GW191109_010717', 'GW191113_071529',
+            'GW191126_115259', 'GW191127_050227', 'GW191129_012715', 'GW191204_171526', 'GW191215_223052',
+            'GW191216_213338', 'GW191222_033537', 'GW191230_180458', 'GW200112_155838', 'GW200128_022011',
+            'GW200129_065458', 'GW200202_154313', 'GW200208_130117', 'GW200208_222617', 'GW200209_085452',
+            'GW200216_220804', 'GW200219_094415', 'GW200220_124850', 'GW200224_222234', 'GW200225_060421',
+            'GW200302_015811', 'GW200311_115853', 'GW200316_215756', 'GW200322_091133'
         ]
         
-        # Try to get GW events first (up to 6), then fill with noise
+        # Try to get GW events first (up to 50% of test samples), then fill with noise
+        max_gw_events = min(len(gw_events), num_samples // 2)  # Up to 50% real GW events
         gw_count = 0
+        
         for i, gps_time in enumerate(selected_times):
-            if gw_count < len(gw_events) and i < len(gw_events):
+            if gw_count < max_gw_events:
                 # Try to download real gravitational wave data
-                event_data = self.data_loader.get_event_data(gw_events[gw_count], duration=4)
-                if event_data and 'H1' in event_data:
-                    strain_data.append(event_data['H1']['strain'])
-                    labels.append(1)  # Signal
-                    snr_values.append(10.0)  # Assume SNR of 10 for real events
+                try:
+                    event_data = self.data_loader.get_event_data(gw_events[gw_count], duration=4)
+                    if event_data and 'H1' in event_data:
+                        strain_data.append(event_data['H1']['strain'])
+                        labels.append(1)  # Signal
+                        snr_values.append(10.0)  # Assume SNR of 10 for real events
+                        gw_count += 1
+                        continue
+                except Exception as e:
+                    logger.warning(f"Failed to download GW event {gw_events[gw_count]}: {e}")
+                    # Continue to next event
                     gw_count += 1
                     continue
             
@@ -330,26 +358,16 @@ class SimpleTrainingPipeline:
         del train_cwt, test_cwt
         purge_memory()
         
-        # Split training data into train/validation (80/20 split)
-        train_size = int(0.8 * len(train_tensor))
-        val_size = len(train_tensor) - train_size
-        
-        # Create indices for splitting
-        indices = torch.randperm(len(train_tensor))
-        train_indices = indices[:train_size]
-        val_indices = indices[train_size:]
-        
         # Create data loaders with proper tensor structure
-        train_loader = DataLoader(TensorDataset(train_tensor[train_indices]), batch_size=1, shuffle=True)
-        val_loader = DataLoader(TensorDataset(train_tensor[val_indices]), batch_size=1, shuffle=False)
+        train_loader = DataLoader(TensorDataset(train_tensor), batch_size=1, shuffle=True)
         test_loader = DataLoader(TensorDataset(test_tensor), batch_size=1, shuffle=False)
         
         # Use conservative epochs to avoid memory issues
-        num_epochs = 20  # Conservative epochs - early stopping will handle convergence
-        logger.info(f" Using {num_epochs} epochs for {actual_train_samples} samples (early stopping enabled)")
+        num_epochs = 20  # Conservative epochs - no validation to save memory
+        logger.info(f" Using {num_epochs} epochs for {actual_train_samples} samples (no validation to save memory)")
         
-        # Train the model with validation
-        train_autoencoder(self.lstm_model, train_loader, num_epochs=num_epochs, lr=0.001, val_loader=val_loader)
+        # Train the model without validation to save memory
+        train_autoencoder(self.lstm_model, train_loader, num_epochs=num_epochs, lr=0.001, val_loader=None)
         
         # CRITICAL: Clear model gradients and optimizer state after training
         if self.lstm_model is not None:

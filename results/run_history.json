@@ -1273,6 +1273,126 @@
         "crashes": 0
       },
       "notes": "Successful training with 100 samples"
+    },
+    {
+      "run_id": "run_050",
+      "timestamp": "2025-09-17T15:31:50.589342",
+      "status": "success",
+      "hyperparameters": {
+        "training_samples": 100,
+        "test_samples": 25,
+        "cwt_height": 8,
+        "cwt_width": 4096,
+        "optimizer": "SGD",
+        "learning_rate": 0.001,
+        "momentum": 0.9,
+        "weight_decay": 1e-05,
+        "epochs": 50,
+        "batch_size": 1,
+        "latent_dim": 32,
+        "lstm_hidden": 64,
+        "mixed_precision": true,
+        "memory_cleanup": true,
+        "downsampling_factor": 4
+      },
+      "results": {
+        "auc": 0.9649122807017544,
+        "ap": 0.9333333333333332,
+        "training_time": "~6 seconds",
+        "memory_usage": "stable",
+        "crashes": 0
+      },
+      "notes": "Successful training with 100 samples"
+    },
+    {
+      "run_id": "run_051",
+      "timestamp": "2025-09-17T15:32:54.532740",
+      "status": "success",
+      "hyperparameters": {
+        "training_samples": 100,
+        "test_samples": 25,
+        "cwt_height": 8,
+        "cwt_width": 4096,
+        "optimizer": "SGD",
+        "learning_rate": 0.001,
+        "momentum": 0.9,
+        "weight_decay": 1e-05,
+        "epochs": 50,
+        "batch_size": 1,
+        "latent_dim": 32,
+        "lstm_hidden": 64,
+        "mixed_precision": true,
+        "memory_cleanup": true,
+        "downsampling_factor": 4
+      },
+      "results": {
+        "auc": 0.9649122807017544,
+        "ap": 0.9333333333333332,
+        "training_time": "~6 seconds",
+        "memory_usage": "stable",
+        "crashes": 0
+      },
+      "notes": "Successful training with 100 samples"
+    },
+    {
+      "run_id": "run_052",
+      "timestamp": "2025-09-17T15:35:16.002865",
+      "status": "success",
+      "hyperparameters": {
+        "training_samples": 100,
+        "test_samples": 25,
+        "cwt_height": 8,
+        "cwt_width": 4096,
+        "optimizer": "SGD",
+        "learning_rate": 0.001,
+        "momentum": 0.9,
+        "weight_decay": 1e-05,
+        "epochs": 50,
+        "batch_size": 1,
+        "latent_dim": 32,
+        "lstm_hidden": 64,
+        "mixed_precision": true,
+        "memory_cleanup": true,
+        "downsampling_factor": 4
+      },
+      "results": {
+        "auc": 0.9649122807017544,
+        "ap": 0.9333333333333332,
+        "training_time": "~6 seconds",
+        "memory_usage": "stable",
+        "crashes": 0
+      },
+      "notes": "Successful training with 100 samples"
+    },
+    {
+      "run_id": "run_059",
+      "timestamp": "2025-09-17T16:04:28.007174",
+      "status": "success",
+      "hyperparameters": {
+        "training_samples": 100,
+        "test_samples": 25,
+        "cwt_height": 8,
+        "cwt_width": 4096,
+        "optimizer": "SGD",
+        "learning_rate": 0.001,
+        "momentum": 0.9,
+        "weight_decay": 1e-05,
+        "epochs": 50,
+        "batch_size": 1,
+        "latent_dim": 32,
+        "lstm_hidden": 64,
+        "mixed_precision": true,
+        "memory_cleanup": true,
+        "downsampling_factor": 4
+      },
+      "results": {
+        "auc": 0.967948717948718,
+        "ap": 0.9722222222222222,
+        "training_time": "~6 seconds",
+        "memory_usage": "stable",
+        "crashes": 0
+      },
+      "notes": "Successful training with 100 samples"
     }
   ],
   "best_performance": {
@@ -1391,6 +1511,66 @@
       },
       "error": "name 'num_test_samples' is not defined",
       "notes": "Pipeline failed with 100 samples"
+    },
+    {
+      "run_id": "run_053",
+      "timestamp": "2025-09-17T15:58:59.775887",
+      "status": "failed",
+      "hyperparameters": {
+        "error": "not enough values to unpack (expected 4, got 3)"
+      },
+      "error": "not enough values to unpack (expected 4, got 3)",
+      "notes": ""
+    },
+    {
+      "run_id": "run_054",
+      "timestamp": "2025-09-17T15:59:22.010332",
+      "status": "failed",
+      "hyperparameters": {
+        "error": "The size of tensor a (1024) must match the size of tensor b (4096) at non-singleton dimension 3"
+      },
+      "error": "The size of tensor a (1024) must match the size of tensor b (4096) at non-singleton dimension 3",
+      "notes": ""
+    },
+    {
+      "run_id": "run_055",
+      "timestamp": "2025-09-17T16:00:42.422183",
+      "status": "failed",
+      "hyperparameters": {
+        "error": "The size of tensor a (4096) must match the size of tensor b (16384) at non-singleton dimension 3"
+      },
+      "error": "The size of tensor a (4096) must match the size of tensor b (16384) at non-singleton dimension 3",
+      "notes": ""
+    },
+    {
+      "run_id": "run_056",
+      "timestamp": "2025-09-17T16:01:20.171579",
+      "status": "failed",
+      "hyperparameters": {
+        "error": "cannot access local variable 'test_cwt' where it is not associated with a value"
+      },
+      "error": "cannot access local variable 'test_cwt' where it is not associated with a value",
+      "notes": ""
+    },
+    {
+      "run_id": "run_057",
+      "timestamp": "2025-09-17T16:01:54.929663",
+      "status": "failed",
+      "hyperparameters": {
+        "error": "Found input variables with inconsistent numbers of samples: [25, 4]"
+      },
+      "error": "Found input variables with inconsistent numbers of samples: [25, 4]",
+      "notes": ""
+    },
+    {
+      "run_id": "run_058",
+      "timestamp": "2025-09-17T16:02:22.048665",
+      "status": "failed",
+      "hyperparameters": {
+        "error": "y should be a 1d array, got an array of shape () instead."
+      },
+      "error": "y should be a 1d array, got an array of shape () instead.",
+      "notes": ""
     }
   ]
 }

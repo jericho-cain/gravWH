@@ -262,7 +262,7 @@ class LIGODataLoader:
     
     def _download_with_gwpy(self, detector: str, start_time: int, end_time: int, run_name: str, cache_file: str) -> Optional[Dict]:
         """
-        Download strain data using GWpy.
+        Download strain data using GWpy fetch_open_data.
         
         Parameters
         ----------
@@ -283,12 +283,10 @@ class LIGODataLoader:
             Dictionary containing strain data and metadata, or None if failed
         """
         try:
-            # Get the channel name for this detector and run
-            channel_name = self.channel_names[run_name][detector]
-            logger.info(f"Downloading {detector} data using GWpy channel: {channel_name}")
+            logger.info(f"Downloading {detector} data using GWpy fetch_open_data...")
             
-            # Download the data
-            strain = TimeSeries.get(channel_name, start_time, end_time, verbose=True)
+            # Use fetch_open_data for public LIGO data
+            strain = TimeSeries.fetch_open_data(detector, start_time, end_time)
             
             # Extract data
             strain_data = strain.value
@@ -313,7 +311,8 @@ class LIGODataLoader:
                 'start_time': start_time,
                 'end_time': end_time,
                 'run': run_name,
-                'cached': False
+                'cached': False,
+                'source': 'GWOSC open data'
             }
             
         except Exception as e:

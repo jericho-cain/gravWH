@@ -219,8 +219,8 @@ def continuous_wavelet_transform(
     # Compute CWT
     coefficients, frequencies = pywt.cwt(signal, scales, wavelet, sampling_period=1/sample_rate)
     
-    # Return magnitude (scalogram)
-    scalogram = np.abs(coefficients)
+    # Return magnitude (scalogram) - convert to float32 immediately
+    scalogram = np.abs(coefficients).astype(np.float32)
     
     return scalogram, frequencies
 
@@ -307,6 +307,7 @@ def preprocess_with_cwt(
             # Log transform and normalize (crucial for neural networks)
             log_scalogram = np.log10(scalogram + 1e-10)
             normalized = (log_scalogram - np.mean(log_scalogram)) / (np.std(log_scalogram) + 1e-10)
+            normalized = normalized.astype(np.float32)  # Ensure float32
             
             # Final check
             if np.any(np.isnan(normalized)) or np.any(np.isinf(normalized)):
@@ -417,16 +418,15 @@ class CWT_LSTM_Autoencoder(nn.Module):
             dropout=0.2
         )
         
-        # Spatial decoder - simplified to match the encoder structure
+        # Spatial decoder - ultra-compact to avoid memory explosion
         self.spatial_decoder = nn.Sequential(
-            nn.Linear(lstm_hidden, 32 * 8 * (input_width // 4)),  # Expand to spatial features
+            nn.Linear(lstm_hidden, 16 * 4 * 4),  # Even smaller: 16x4x4 instead of 32x8x8
             nn.ReLU(),
-            nn.Unflatten(1, (32, 8, input_width // 4)),  # Reshape to spatial dimensions
-            nn.ConvTranspose2d(32, 16, kernel_size=3, padding=1),
+            nn.Unflatten(1, (16, 4, 4)),  # Reshape to tiny fixed spatial dimensions
+            nn.ConvTranspose2d(16, 8, kernel_size=3, stride=2, padding=1),
             nn.ReLU(),
-            nn.Upsample(scale_factor=2, mode='bilinear', align_corners=False),
-            nn.ConvTranspose2d(16, 1, kernel_size=3, padding=1),  # Remove output_padding
-            nn.AdaptiveAvgPool2d((input_height, input_width)),  # Ensure exact output dimensions
+            nn.ConvTranspose2d(8, 1, kernel_size=3, stride=2, padding=1),
+            nn.AdaptiveAvgPool2d((input_height, input_width)),  # Upsample to target dimensions
             nn.Tanh()  # Output in [-1, 1] range
         )
         
@@ -487,8 +487,8 @@ class CWT_LSTM_Autoencoder(nn.Module):
         # Expand latent to sequence
         decoded_features = self.from_latent(latent)  # (batch, lstm_hidden)
         
-        # Create sequence by repeating latent
-        sequence_length = self.input_width // 4
+        # Create sequence by repeating latent - use small fixed sequence length
+        sequence_length = 64  # Fixed small sequence instead of width-dependent
         sequence = decoded_features.unsqueeze(1).repeat(1, sequence_length, 1)
         
         # Temporal decoding
@@ -679,6 +679,10 @@ def train_autoencoder(
         avg_loss = epoch_loss / num_batches if num_batches > 0 else 0
         losses.append(avg_loss)
         scheduler.step(avg_loss)
+        
+        # Clear memory after each epoch to prevent accumulation
+        if torch.cuda.is_available():
+            torch.cuda.empty_cache()
         
         if (epoch + 1) % 10 == 0:
             logger.info(f"  Epoch {epoch+1}/{num_epochs}, Loss: {avg_loss:.6f}")

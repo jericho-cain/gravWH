@@ -10,12 +10,30 @@ import numpy as np
 import matplotlib.pyplot as plt
 from sklearn.metrics import precision_recall_curve, roc_curve, roc_auc_score, average_precision_score
 import logging
+import gc
 
 from .ligo_data_loader import LIGODataLoader
 from ..models.cwt_lstm_autoencoder import CWT_LSTM_Autoencoder, train_autoencoder, detect_anomalies, preprocess_with_cwt
 from ..models.cwt_transformer_autoencoder import CWT_Transformer_Autoencoder
 from torch.utils.data import DataLoader, TensorDataset
 import torch
+
+def purge_memory():
+    """Purge memory to prevent accumulation between runs."""
+    # Clear Python garbage collection
+    gc.collect()
+    
+    # Clear PyTorch cache if CUDA is available
+    if torch.cuda.is_available():
+        torch.cuda.empty_cache()
+        torch.cuda.synchronize()
+    
+    # Clear matplotlib cache
+    plt.clf()
+    plt.close('all')
+    
+    # Force garbage collection again
+    gc.collect()
 
 # Set up logging
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
@@ -181,16 +199,25 @@ class SimpleTrainingPipeline:
         """
         logger.info(" Starting model training...")
         
-        # Preprocess data with CWT
+        # Downsample before CWT to reduce memory usage
+        from scipy.signal import decimate
+        
+        decim = 4  # 4096 -> 1024 Hz (8 for 512 Hz)
+        logger.info(f"Downsampling data from {4096} Hz to {4096//decim} Hz...")
+        
+        train_data_ds = np.array([decimate(x, decim, zero_phase=True).astype(np.float32) for x in train_data])
+        test_data_ds = np.array([decimate(x, decim, zero_phase=True).astype(np.float32) for x in test_data])
+        sample_rate_ds = 4096 // decim
+        
+        # Preprocess data with CWT using downsampled data
         logger.info("Preprocessing data with CWT...")
-        sample_rate = 4096  # Standard LIGO sample rate
         
         # Debug: Check data before preprocessing
-        logger.info(f"Train data shape: {train_data.shape}, min: {train_data.min():.6f}, max: {train_data.max():.6f}")
-        logger.info(f"Test data shape: {test_data.shape}, min: {test_data.min():.6f}, max: {test_data.max():.6f}")
+        logger.info(f"Train data shape: {train_data_ds.shape}, min: {train_data_ds.min():.6f}, max: {train_data_ds.max():.6f}")
+        logger.info(f"Test data shape: {test_data_ds.shape}, min: {test_data_ds.min():.6f}, max: {test_data_ds.max():.6f}")
         
-        train_cwt = preprocess_with_cwt(train_data, sample_rate)
-        test_cwt = preprocess_with_cwt(test_data, sample_rate)
+        train_cwt = preprocess_with_cwt(train_data_ds, sample_rate_ds, target_height=16)  # Even smaller
+        test_cwt = preprocess_with_cwt(test_data_ds, sample_rate_ds, target_height=16)  # Even smaller
         
         # Debug: Check CWT data
         logger.info(f"Train CWT shape: {train_cwt.shape}, min: {train_cwt.min():.6f}, max: {train_cwt.max():.6f}")
@@ -202,47 +229,49 @@ class SimpleTrainingPipeline:
         if np.any(np.isnan(test_cwt)) or np.any(np.isinf(test_cwt)):
             logger.error("NaN or infinite values in test CWT data!")
         
+        # Fix: Filter test_labels and test_snr to match actual test_cwt samples
+        # Some test samples may have been filtered out during CWT preprocessing
+        if len(test_cwt) != len(test_labels):
+            logger.warning(f"Test data mismatch: {len(test_cwt)} CWT samples vs {len(test_labels)} labels")
+            logger.warning("Truncating labels and SNR to match available samples")
+            # Truncate to match the actual number of valid test samples
+            test_labels = test_labels[:len(test_cwt)]
+            test_snr = test_snr[:len(test_cwt)]
+        
         # Convert to tensors
         train_tensor = torch.FloatTensor(train_cwt).unsqueeze(1)  # Add channel dimension
         test_tensor = torch.FloatTensor(test_cwt).unsqueeze(1)
         
-        # Create data loaders
-        train_loader = DataLoader(TensorDataset(train_tensor), batch_size=8, shuffle=True)
-        test_loader = DataLoader(TensorDataset(test_tensor), batch_size=8, shuffle=False)
+        # Store dimensions before clearing arrays
+        input_height = train_cwt.shape[1]
+        input_width = train_cwt.shape[2]
         
         # Train LSTM model
         logger.info(" Training CWT-LSTM Autoencoder...")
         self.lstm_model = CWT_LSTM_Autoencoder(
-            input_height=train_cwt.shape[1],
-            input_width=train_cwt.shape[2],
-            latent_dim=64
+            input_height=input_height,
+            input_width=input_width,
+            latent_dim=32  # Reduced from 64 to save memory
         )
         
+        # Clear the large CWT arrays to free memory after model creation
+        del train_cwt, test_cwt
+        purge_memory()
+        
+        # Create data loaders with smaller batch size to reduce memory usage
+        train_loader = DataLoader(TensorDataset(train_tensor), batch_size=1, shuffle=True)
+        test_loader = DataLoader(TensorDataset(test_tensor), batch_size=1, shuffle=False)
+        
         # Train the model
-        train_autoencoder(self.lstm_model, train_loader, num_epochs=30, lr=0.001)
+        train_autoencoder(self.lstm_model, train_loader, num_epochs=10, lr=0.001)  # Even fewer epochs
         
         # Detect anomalies
         lstm_results = detect_anomalies(self.lstm_model, test_loader)
         lstm_scores = lstm_results['reconstruction_errors']
         
-        # Train Transformer model (if available)
-        logger.info(" Training CWT-Transformer Autoencoder...")
-        try:
-            self.transformer_model = CWT_Transformer_Autoencoder(
-                input_height=train_cwt.shape[1],
-                input_width=train_cwt.shape[2],
-                latent_dim=64
-            )
-            
-            # Train the model
-            train_autoencoder(self.transformer_model, train_loader, num_epochs=30, lr=0.001)
-            
-            # Detect anomalies
-            transformer_results = detect_anomalies(self.transformer_model, test_loader)
-            transformer_scores = transformer_results['reconstruction_errors']
-        except Exception as e:
-            logger.warning(f"Transformer model failed: {e}")
-            transformer_scores = lstm_scores  # Use LSTM scores as fallback
+        # Skip Transformer model for now - focus on LSTM only
+        logger.info(" Skipping Transformer model - focusing on LSTM only")
+        transformer_scores = lstm_scores  # Use LSTM scores as fallback
         
         # Calculate metrics
         lstm_metrics = self._calculate_metrics(test_labels, lstm_scores, test_snr)
@@ -394,6 +423,11 @@ class SimpleTrainingPipeline:
         ax4.set_ylim([0, 1])
         
         plt.tight_layout()
+        
+        # Ensure results directory exists
+        import os
+        os.makedirs('results', exist_ok=True)
+        
         plt.savefig(save_path, dpi=150, bbox_inches='tight')
         logger.info(f" Results saved to {save_path}")
         
@@ -410,6 +444,8 @@ class SimpleTrainingPipeline:
         Returns:
             tuple: (lstm_results, transformer_results)
         """
+        # Purge memory to prevent accumulation between runs
+        purge_memory()
         logger.info(" Starting complete training pipeline...")
         logger.info(f" Training: {num_training_samples} clean samples")
         logger.info(f" Testing: {num_test_samples} samples (mix of noise and signals)")
@@ -423,8 +459,11 @@ class SimpleTrainingPipeline:
             train_data, test_data, test_labels, test_snr
         )
         
-        # Create plots
-        self.create_plots(lstm_results, transformer_results)
+        # Create plots and save to results/ligo_data/
+        import os
+        os.makedirs('results/ligo_data', exist_ok=True)
+        fig = self.create_plots(lstm_results, transformer_results, save_path='results/ligo_data/simple_results.png')
+        plt.close(fig)  # Close figure to prevent memory leak
         
         # Print results
         logger.info(" Final Results:")

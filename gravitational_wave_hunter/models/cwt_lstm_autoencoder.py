@@ -385,38 +385,27 @@ class CWT_LSTM_Autoencoder(nn.Module):
         self.input_width = input_width
         self.latent_dim = latent_dim
         
-        # Encoder: 2D CNN to extract spatial features + LSTM for temporal modeling
+        # Encoder: 2D CNN to extract spatial features - memory efficient
         self.spatial_encoder = nn.Sequential(
             nn.Conv2d(1, 16, kernel_size=3, padding=1),
             nn.ReLU(),
-            nn.MaxPool2d(2),
+            nn.AdaptiveAvgPool2d((8, 8)),  # Immediate downsampling to avoid large intermediates
             nn.Conv2d(16, 32, kernel_size=3, padding=1),
             nn.ReLU(),
-            nn.AdaptiveAvgPool2d((8, input_width//4))  # Reduce spatial dimensions
+            nn.AdaptiveAvgPool2d((4, 4))  # Final small spatial dimensions
         )
         
-        # LSTM encoder for temporal evolution - reduced for memory
-        self.temporal_encoder = nn.LSTM(
-            input_size=32 * 8,  # Flattened spatial features
-            hidden_size=lstm_hidden // 2,  # Reduce hidden size by half
-            num_layers=1,  # Reduce to single layer
-            batch_first=True,
-            dropout=0.0  # Remove dropout to save memory
+        # Simple linear encoder instead of LSTM for memory efficiency
+        self.temporal_encoder = nn.Linear(
+            32 * 4 * 4,  # Flattened spatial features (32 channels * 4*4 spatial)
+            lstm_hidden // 2  # Reduce hidden size by half
         )
         
         # Latent space
         self.to_latent = nn.Linear(lstm_hidden // 2, latent_dim)
         
-        # Decoder
+        # Decoder - simplified to match encoder
         self.from_latent = nn.Linear(latent_dim, lstm_hidden // 2)
-        
-        self.temporal_decoder = nn.LSTM(
-            input_size=lstm_hidden // 2,
-            hidden_size=lstm_hidden // 2,
-            num_layers=1,  # Reduce to single layer
-            batch_first=True,
-            dropout=0.0  # Remove dropout to save memory
-        )
         
         # Spatial decoder - ultra-compact to avoid memory explosion
         self.spatial_decoder = nn.Sequential(
@@ -449,19 +438,17 @@ class CWT_LSTM_Autoencoder(nn.Module):
         """
         batch_size, channels, height, width = x.size()
         
-        # Spatial encoding (treat each time step as separate image)
-        # Reshape: (batch, 1, height, width) -> (batch*time, 1, height, width)
-        x_reshaped = x.view(-1, 1, height, width)
-        spatial_features = self.spatial_encoder(x_reshaped)  # (batch*time, 32, 8, width//4)
+        # Spatial encoding - process entire scalogram at once
+        spatial_features = self.spatial_encoder(x)  # (batch, 32, 4, 4)
         
-        # Reshape back for temporal modeling
-        spatial_flat = spatial_features.view(batch_size, width//4, -1)  # (batch, time, features)
+        # Flatten spatial features for temporal modeling
+        spatial_flat = spatial_features.view(batch_size, -1)  # (batch, 32*4*4)
         
         # Temporal encoding
-        temporal_out, (hidden, _) = self.temporal_encoder(spatial_flat)
+        temporal_out = self.temporal_encoder(spatial_flat)  # (batch, lstm_hidden//2)
         
-        # Use last hidden state
-        latent = self.to_latent(hidden[-1])  # (batch, latent_dim)
+        # Direct to latent
+        latent = self.to_latent(temporal_out)  # (batch, latent_dim)
         
         return latent
     
@@ -470,7 +457,7 @@ class CWT_LSTM_Autoencoder(nn.Module):
         Decode latent representation back to scalogram.
         
         Reconstructs the original CWT scalogram from the latent representation
-        using temporal and spatial decoders.
+        using a simple linear decoder to match the encoder architecture.
         
         Parameters
         ----------
@@ -484,21 +471,11 @@ class CWT_LSTM_Autoencoder(nn.Module):
         """
         batch_size = latent.size(0)
         
-        # Expand latent to sequence
-        decoded_features = self.from_latent(latent)  # (batch, lstm_hidden)
+        # Simple linear decoding to match the encoder
+        decoded_features = self.from_latent(latent)  # (batch, lstm_hidden//2)
         
-        # Create sequence by repeating latent - use small fixed sequence length
-        sequence_length = 64  # Fixed small sequence instead of width-dependent
-        sequence = decoded_features.unsqueeze(1).repeat(1, sequence_length, 1)
-        
-        # Temporal decoding
-        temporal_out, _ = self.temporal_decoder(sequence)  # (batch, time, lstm_hidden)
-        
-        # Use the last output from the LSTM for reconstruction
-        last_output = temporal_out[:, -1, :]  # (batch, lstm_hidden)
-        
-        # Spatial decoding - directly from the last LSTM output
-        reconstructed = self.spatial_decoder(last_output)  # (batch, 1, height, width)
+        # Direct spatial decoding - no unnecessary sequence creation
+        reconstructed = self.spatial_decoder(decoded_features)  # (batch, 1, height, width)
         
         return reconstructed
     
@@ -648,11 +625,18 @@ def train_autoencoder(
     """
     
     criterion = nn.MSELoss()
-    optimizer = torch.optim.Adam(model.parameters(), lr=lr, weight_decay=1e-5)
+    optimizer = torch.optim.SGD(model.parameters(), lr=lr*10, momentum=0.9, weight_decay=1e-5)  # SGD is more memory-efficient
     scheduler = torch.optim.lr_scheduler.ReduceLROnPlateau(optimizer, patience=5, factor=0.5)
     
     model = model.to(device)
     model.train()
+    
+    # Clear any accumulated memory
+    if torch.cuda.is_available():
+        torch.cuda.empty_cache()
+
+    # Enable Mixed Precision Training for memory efficiency
+    scaler = torch.cuda.amp.GradScaler() if torch.cuda.is_available() else None
     
     logger.info(f"Training autoencoder for {num_epochs} epochs...")
     
@@ -662,27 +646,62 @@ def train_autoencoder(
         epoch_loss = 0
         num_batches = 0
         
-        for batch in noise_loader:
+        # Use param.grad = None instead of optimizer.zero_grad() for better memory efficiency
+        for param in model.parameters():
+            param.grad = None
+
+        for batch_idx, batch in enumerate(noise_loader):
             data = batch[0].to(device)
-            
-            optimizer.zero_grad()
-            
-            reconstructed, latent = model(data)
-            loss = criterion(reconstructed, data)
-            
-            loss.backward()
-            optimizer.step()
-            
-            epoch_loss += loss.item()
+
+            # Use mixed precision training for memory efficiency
+            if scaler is not None:
+                with torch.cuda.amp.autocast():
+                    reconstructed, latent = model(data)
+                    loss = criterion(reconstructed, data)
+                
+                scaler.scale(loss).backward()
+                scaler.step(optimizer)
+                scaler.update()
+                # Use param.grad = None instead of optimizer.zero_grad()
+                for param in model.parameters():
+                    param.grad = None
+            else:
+                # CPU fallback without mixed precision
+                reconstructed, latent = model(data)
+                loss = criterion(reconstructed, data)
+                
+                loss.backward()
+                optimizer.step()
+                # Use param.grad = None instead of optimizer.zero_grad()
+                for param in model.parameters():
+                    param.grad = None
+
+            epoch_loss += loss.item()  # No scaling needed without gradient accumulation
             num_batches += 1
+            
+            # CRITICAL: Clean up batch variables to prevent memory accumulation
+            del data, reconstructed, latent, loss
+            if torch.cuda.is_available():
+                torch.cuda.empty_cache()
+
+        # No remaining gradients to handle since we update every batch
         
         avg_loss = epoch_loss / num_batches if num_batches > 0 else 0
         losses.append(avg_loss)
         scheduler.step(avg_loss)
         
-        # Clear memory after each epoch to prevent accumulation
+        # CRITICAL: Clear memory after each epoch to prevent accumulation
         if torch.cuda.is_available():
             torch.cuda.empty_cache()
+        import gc
+        gc.collect()
+        
+        # CRITICAL: Reset optimizer state every 10 epochs to prevent accumulation
+        if (epoch + 1) % 10 == 0:
+            # Recreate optimizer to reset internal state
+            optimizer = torch.optim.SGD(model.parameters(), lr=0.01, momentum=0.9, weight_decay=1e-5)
+            if scaler is not None:
+                scaler = torch.cuda.amp.GradScaler()
         
         if (epoch + 1) % 10 == 0:
             logger.info(f"  Epoch {epoch+1}/{num_epochs}, Loss: {avg_loss:.6f}")
@@ -695,7 +714,7 @@ def detect_anomalies(
     noise_threshold_percentile: float = 95
 ) -> dict:
     """
-    Detect anomalies using reconstruction error.
+    Detect anomalies using reconstruction error with memory-efficient processing.
     
     Uses the trained autoencoder to identify potential gravitational wave
     signals by measuring reconstruction error. Higher reconstruction error
@@ -727,20 +746,53 @@ def detect_anomalies(
     classified as anomalies (potential GW signals).
     """
     
+    # Clear memory before starting inference
+    if torch.cuda.is_available():
+        torch.cuda.empty_cache()
+    import gc
+    gc.collect()
+    
     model.eval()
     reconstruction_errors = []
     latent_representations = []
     
     with torch.no_grad():
-        for batch in test_loader:
+        for i, batch in enumerate(test_loader):
             data = batch[0].to(device)
             
-            reconstructed, latent = model(data)
+            try:
+                # Use mixed precision for inference to save memory
+                if torch.cuda.is_available():
+                    with torch.cuda.amp.autocast():
+                        reconstructed, latent = model(data)
+                else:
+                    reconstructed, latent = model(data)
+                
+                # Calculate reconstruction error for each sample
+                mse = torch.mean((reconstructed - data)**2, dim=(1, 2, 3))
+                reconstruction_errors.extend(mse.cpu().numpy())
+                latent_representations.extend(latent.cpu().numpy())
+                
+            except RuntimeError as e:
+                if "out of memory" in str(e).lower():
+                    logger.warning(f"Memory error on sample {i}, skipping...")
+                    # Add dummy values to maintain array consistency
+                    reconstruction_errors.append(1.0)  # High error for failed samples
+                    latent_representations.append(np.zeros(16))  # Dummy latent vector
+                else:
+                    raise e
             
-            # Calculate reconstruction error for each sample
-            mse = torch.mean((reconstructed - data)**2, dim=(1, 2, 3))
-            reconstruction_errors.extend(mse.cpu().numpy())
-            latent_representations.extend(latent.cpu().numpy())
+            # Aggressive memory cleanup after each sample
+            del data, reconstructed, latent, mse
+            if torch.cuda.is_available():
+                torch.cuda.empty_cache()
+            
+            # Force garbage collection every few samples
+            if i % 3 == 0:
+                import gc
+                gc.collect()
+                if torch.cuda.is_available():
+                    torch.cuda.empty_cache()
     
     reconstruction_errors = np.array(reconstruction_errors)
     

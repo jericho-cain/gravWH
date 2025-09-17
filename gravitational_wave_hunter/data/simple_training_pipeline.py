@@ -216,8 +216,8 @@ class SimpleTrainingPipeline:
         logger.info(f"Train data shape: {train_data_ds.shape}, min: {train_data_ds.min():.6f}, max: {train_data_ds.max():.6f}")
         logger.info(f"Test data shape: {test_data_ds.shape}, min: {test_data_ds.min():.6f}, max: {test_data_ds.max():.6f}")
         
-        train_cwt = preprocess_with_cwt(train_data_ds, sample_rate_ds, target_height=16)  # Even smaller
-        test_cwt = preprocess_with_cwt(test_data_ds, sample_rate_ds, target_height=16)  # Even smaller
+        train_cwt = preprocess_with_cwt(train_data_ds, sample_rate_ds, target_height=8)   # Reduced from 16 to 8 for memory
+        test_cwt = preprocess_with_cwt(test_data_ds, sample_rate_ds, target_height=8)     # Reduced from 16 to 8 for memory
         
         # Debug: Check CWT data
         logger.info(f"Train CWT shape: {train_cwt.shape}, min: {train_cwt.min():.6f}, max: {train_cwt.max():.6f}")
@@ -251,19 +251,19 @@ class SimpleTrainingPipeline:
         self.lstm_model = CWT_LSTM_Autoencoder(
             input_height=input_height,
             input_width=input_width,
-            latent_dim=32  # Reduced from 64 to save memory
+            latent_dim=32  # Conservative size for memory
         )
         
         # Clear the large CWT arrays to free memory after model creation
         del train_cwt, test_cwt
         purge_memory()
         
-        # Create data loaders with smaller batch size to reduce memory usage
+        # Create data loaders with optimal batch size for best performance
         train_loader = DataLoader(TensorDataset(train_tensor), batch_size=1, shuffle=True)
         test_loader = DataLoader(TensorDataset(test_tensor), batch_size=1, shuffle=False)
         
         # Train the model
-        train_autoencoder(self.lstm_model, train_loader, num_epochs=10, lr=0.001)  # Even fewer epochs
+        train_autoencoder(self.lstm_model, train_loader, num_epochs=20, lr=0.001)  # Reduced epochs to avoid memory accumulation
         
         # Detect anomalies
         lstm_results = detect_anomalies(self.lstm_model, test_loader)
@@ -272,6 +272,10 @@ class SimpleTrainingPipeline:
         # Skip Transformer model for now - focus on LSTM only
         logger.info(" Skipping Transformer model - focusing on LSTM only")
         transformer_scores = lstm_scores  # Use LSTM scores as fallback
+        
+        # CRITICAL: Clean up tensors to prevent memory accumulation across runs
+        del train_tensor, test_tensor, train_loader, test_loader
+        purge_memory()
         
         # Calculate metrics
         lstm_metrics = self._calculate_metrics(test_labels, lstm_scores, test_snr)

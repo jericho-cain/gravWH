@@ -48,12 +48,22 @@ logger = logging.getLogger(__name__)
 class SimpleTrainingPipeline:
     """Simple training pipeline for gravitational wave detection."""
     
-    def __init__(self):
+    def __init__(self, random_seed=42):
         """Initialize the training pipeline."""
+        # Set random seed for reproducible results
+        import random
+        import numpy as np
+        import torch
+        
+        random.seed(random_seed)
+        np.random.seed(random_seed)
+        torch.manual_seed(random_seed)
+        
         self.data_loader = LIGODataLoader()
         self.lstm_model = None
         self.transformer_model = None
         self.tracker = RunTracker()  # Initialize run tracking
+        self.random_seed = random_seed
         
     def download_training_data(self, num_samples=100):
         """
@@ -67,32 +77,64 @@ class SimpleTrainingPipeline:
         """
         logger.info(f" Downloading {num_samples} clean training samples...")
         
-        # Get list of available cached GPS times
-        available_times = self._get_available_gps_times()
-        logger.info(f" Found {len(available_times)} cached GPS times")
-        
-        if len(available_times) < num_samples:
-            logger.warning(f" Only {len(available_times)} cached samples available, reducing request from {num_samples}")
-            num_samples = len(available_times)
-        
-        # Randomly sample from available times
-        import random
-        selected_times = random.sample(available_times, num_samples)
+        # Use GPS periods from official O1 observing run (Sept 12, 2015 - Jan 19, 2016)
+        # Based on GWOSC O1 Data Release: https://gwosc.org/data/
+        # GW150914 occurred at GPS time 1126259446 during O1
+        clean_periods = [
+            # Periods around GW150914 (Sept 14, 2015) - known good quality data
+            1126259400, 1126259500, 1126259600, 1126259700, 1126259800,
+            1126259900, 1126260000, 1126260100, 1126260200, 1126260300,
+            1126260400, 1126260500, 1126260600, 1126260700, 1126260800,
+            1126260900, 1126261000, 1126261100, 1126261200, 1126261300,
+            1126261400, 1126261500, 1126261600, 1126261700, 1126261800,
+            1126261900, 1126262000, 1126262100, 1126262200, 1126262300,
+            1126262400, 1126262500, 1126262600, 1126262700, 1126262800,
+            1126262900, 1126263000, 1126263100, 1126263200, 1126263300,
+            1126263400, 1126263500, 1126263600, 1126263700, 1126263800,
+            1126263900, 1126264000, 1126264100, 1126264200, 1126264300,
+            1126264400, 1126264500, 1126264600, 1126264700, 1126264800,
+            1126264900, 1126265000, 1126265100, 1126265200, 1126265300,
+            1126265400, 1126265500, 1126265600, 1126265700, 1126265800,
+            1126265900, 1126266000, 1126266100, 1126266200, 1126266300,
+            1126266400, 1126266500, 1126266600, 1126266700, 1126266800,
+            1126266900, 1126267000, 1126267100, 1126267200, 1126267300,
+            1126267400, 1126267500, 1126267600, 1126267700, 1126267800,
+            1126267900, 1126268000, 1126268100, 1126268200, 1126268300,
+            1126268400, 1126268500, 1126268600, 1126268700, 1126268800,
+            1126268900, 1126269000, 1126269100, 1126269200, 1126269300,
+            1126269400, 1126269500, 1126269600, 1126269700, 1126269800,
+            1126269900, 1126270000, 1126270100, 1126270200, 1126270300
+        ]
         
         strain_data = []
         labels = []
         
-        # Download samples from selected cached times
-        for i, gps_time in enumerate(selected_times):
-            data = self.data_loader.download_strain_data('H1', gps_time, 4, 4096)
-            if data:
-                strain_data.append(data['strain'])
-                labels.append(0)  # All training data is noise (no signals)
+        # Try to download samples, skipping periods that timeout
+        period_index = 0
+        successful_downloads = 0
+        
+        while successful_downloads < num_samples and period_index < len(clean_periods):
+            gps_time = clean_periods[period_index]
+            
+            try:
+                # Download data from H1 detector
+                data = self.data_loader.download_strain_data('H1', gps_time, 4, 4096)
+                if data:
+                    strain_data.append(data['strain'])
+                    labels.append(0)  # All training data is clean (no signals)
+                    successful_downloads += 1
+                    
+                    if successful_downloads % 10 == 0:
+                        logger.info(f" Downloaded {successful_downloads}/{num_samples} training samples")
+                        
+            except KeyboardInterrupt:
+                logger.warning(f" Network timeout for period {gps_time} - skipping")
+                # Continue to next period
+            except Exception as e:
+                logger.warning(f" Failed to download period {gps_time}: {e}")
+                # Continue to next period
                 
-                if (i + 1) % 10 == 0:
-                    logger.info(f" Downloaded {i + 1}/{num_samples} training samples")
-            else:
-                logger.warning(f" Failed to download data for GPS time {gps_time}")
+            period_index += 1
         
         strain_data = np.array(strain_data)
         labels = np.array(labels)
@@ -176,11 +218,11 @@ class SimpleTrainingPipeline:
             logger.warning("Cache directory not found")
             return available_times
         
-        # Scan cache directory for H1 files from all observing runs
+        # Scan cache directory for H1 files
         for filename in os.listdir(cache_dir):
-            if '_H1_' in filename and filename.endswith("_4_4096.npz"):
-                # Extract GPS time from filename: O1_H1_1126256000_4_4096.npz or O2_H1_1167559934_4_4096.npz
-                match = re.search(r'O\d+_H1_(\d+)_4_4096\.npz', filename)
+            if filename.startswith("O1_H1_") and filename.endswith("_4_4096.npz"):
+                # Extract GPS time from filename: O1_H1_1126256000_4_4096.npz
+                match = re.search(r'O1_H1_(\d+)_4_4096\.npz', filename)
                 if match:
                     gps_time = int(match.group(1))
                     available_times.append(gps_time)
@@ -474,6 +516,116 @@ class SimpleTrainingPipeline:
                     'snr_values': snr_values
                 }
     
+    def _plot_confusion_matrix(self, ax, results, test_labels, threshold_type='max_precision', title='Confusion Matrix'):
+        """Plot confusion matrix for specified threshold."""
+        from sklearn.metrics import confusion_matrix, precision_score, recall_score, f1_score
+        
+        scores = results['scores']
+        precision = results['precision']
+        recall = results['recall']
+        thresholds = results['thresholds']
+        
+        # Find threshold based on type
+        if threshold_type == 'max_precision':
+            # Find threshold with maximum precision
+            max_precision_idx = np.argmax(precision)
+            # Fix: thresholds array is one element shorter than precision/recall arrays
+            threshold_idx = min(max_precision_idx, len(thresholds) - 1)
+            threshold = thresholds[threshold_idx]
+            precision_val = precision[max_precision_idx]
+            recall_val = recall[max_precision_idx]
+        else:
+            # Default to max precision
+            max_precision_idx = np.argmax(precision)
+            threshold = thresholds[max_precision_idx]
+            precision_val = precision[max_precision_idx]
+            recall_val = recall[max_precision_idx]
+        
+        # Generate predictions using threshold
+        predictions = (scores >= threshold).astype(int)
+        
+        # Ensure arrays have same length
+        min_length = min(len(test_labels), len(predictions))
+        test_labels_trimmed = test_labels[:min_length]
+        predictions_trimmed = predictions[:min_length]
+        
+        # Calculate confusion matrix
+        cm = confusion_matrix(test_labels_trimmed, predictions_trimmed)
+        
+        # Plot confusion matrix
+        im = ax.imshow(cm, interpolation='nearest', cmap='Blues')
+        ax.figure.colorbar(im, ax=ax)
+        
+        # Add text annotations
+        thresh = cm.max() / 2.
+        for i in range(cm.shape[0]):
+            for j in range(cm.shape[1]):
+                ax.text(j, i, format(cm[i, j], 'd'),
+                       ha="center", va="center",
+                       color="white" if cm[i, j] > thresh else "black")
+        
+        # Set labels
+        ax.set_xlabel('Predicted')
+        ax.set_ylabel('Actual')
+        ax.set_title(f'{title}\nP={precision_val:.3f}, R={recall_val:.3f}')
+        ax.set_xticks([0, 1])
+        ax.set_yticks([0, 1])
+        ax.set_xticklabels(['Noise', 'Signal'])
+        ax.set_yticklabels(['Noise', 'Signal'])
+        
+        # Calculate and display F1 score
+        f1 = f1_score(test_labels_trimmed, predictions_trimmed)
+        ax.text(0.5, -0.15, f'F1={f1:.3f}', transform=ax.transAxes, 
+                ha='center', fontsize=10, bbox=dict(boxstyle="round,pad=0.3", facecolor="lightgray"))
+
+    def _plot_reconstruction_errors(self, ax, results, test_labels, title='Reconstruction Error Distribution'):
+        """Plot reconstruction error distribution for signals vs noise."""
+        scores = results['scores']
+        
+        if test_labels is None:
+            ax.text(0.5, 0.5, 'Test labels not available', 
+                   transform=ax.transAxes, ha='center', va='center', fontsize=12)
+            ax.set_title(title)
+            return
+        
+        # Ensure arrays have same length
+        min_length = min(len(test_labels), len(scores))
+        test_labels_trimmed = test_labels[:min_length]
+        scores_trimmed = scores[:min_length]
+        
+        # Separate scores by true labels
+        noise_scores = scores_trimmed[test_labels_trimmed == 0]
+        signal_scores = scores_trimmed[test_labels_trimmed == 1]
+        
+        # Create histogram
+        bins = np.linspace(scores_trimmed.min(), scores_trimmed.max(), 30)
+        
+        ax.hist(noise_scores, bins=bins, alpha=0.6, label=f'Noise (n={len(noise_scores)})', 
+               color='blue', density=True)
+        ax.hist(signal_scores, bins=bins, alpha=0.6, label=f'Signals (n={len(signal_scores)})', 
+               color='red', density=True)
+        
+        # Add vertical line for optimal threshold
+        optimal_threshold = results.get('optimal_threshold', 0.5)
+        ax.axvline(x=optimal_threshold, color='green', linestyle='--', linewidth=2, 
+                  label=f'Optimal Threshold ({optimal_threshold:.3f})')
+        
+        ax.set_xlabel('Reconstruction Error (Anomaly Score)')
+        ax.set_ylabel('Density')
+        ax.set_title(title)
+        ax.legend()
+        ax.grid(True, alpha=0.3)
+        
+        # Add statistics text
+        noise_mean = np.mean(noise_scores) if len(noise_scores) > 0 else 0
+        signal_mean = np.mean(signal_scores) if len(signal_scores) > 0 else 0
+        separation = abs(signal_mean - noise_mean)
+        
+        stats_text = f'Noise μ={noise_mean:.3f}\nSignal μ={signal_mean:.3f}\nSeparation={separation:.3f}'
+        ax.text(0.02, 0.98, stats_text, transform=ax.transAxes, 
+               verticalalignment='top', fontsize=9,
+               bbox=dict(boxstyle="round,pad=0.3", facecolor="lightgray", alpha=0.8))
+
     def create_plots(self, lstm_results, transformer_results, test_labels=None, save_path='simple_results.png'):
         """Create evaluation plots."""
         logger.info(" Creating evaluation plots...")
@@ -520,48 +672,15 @@ class SimpleTrainingPipeline:
         ax2.set_xlim([0, 1])
         ax2.set_ylim([0, 1])
         
-        # Plot 3: Score Distributions
+        # Plot 3: Confusion Matrix - Highest Precision
         ax3 = axes[1, 0]
-        lstm_scores = lstm_results['scores']
-        transformer_scores = transformer_results['scores']
+        self._plot_confusion_matrix(ax3, lstm_results, test_labels, 
+                                   threshold_type='max_precision', 
+                                   title='Confusion Matrix (Max Precision)')
         
-        # Separate scores by true labels
-        lstm_noise_scores = lstm_scores[lstm_results['scores'] == 0]
-        lstm_signal_scores = lstm_scores[lstm_results['scores'] == 1]
-        transformer_noise_scores = transformer_scores[transformer_results['scores'] == 0]
-        transformer_signal_scores = transformer_scores[transformer_results['scores'] == 1]
-        
-        ax3.hist(lstm_noise_scores, bins=20, alpha=0.5, label='CWT-LSTM Noise', color='blue')
-        ax3.hist(lstm_signal_scores, bins=20, alpha=0.5, label='CWT-LSTM Signals', color='red')
-        ax3.hist(transformer_noise_scores, bins=20, alpha=0.3, label='CWT-Transformer Noise', color='lightblue')
-        ax3.hist(transformer_signal_scores, bins=20, alpha=0.3, label='CWT-Transformer Signals', color='pink')
-        
-        ax3.set_xlabel('Anomaly Score')
-        ax3.set_ylabel('Frequency')
-        ax3.set_title('Score Distributions')
-        ax3.legend()
-        ax3.grid(True, alpha=0.3)
-        
-        # Plot 4: Performance Summary
+        # Plot 4: Reconstruction Error Distribution
         ax4 = axes[1, 1]
-        models = ['CWT-LSTM', 'CWT-Transformer']
-        auc_scores = [lstm_results['auc'], transformer_results['auc']]
-        ap_scores = [lstm_results['avg_precision'], transformer_results['avg_precision']]
-        
-        x = np.arange(len(models))
-        width = 0.35
-        
-        ax4.bar(x - width/2, auc_scores, width, label='AUC', alpha=0.8)
-        ax4.bar(x + width/2, ap_scores, width, label='Average Precision', alpha=0.8)
-        
-        ax4.set_xlabel('Model')
-        ax4.set_ylabel('Score')
-        ax4.set_title('Performance Comparison')
-        ax4.set_xticks(x)
-        ax4.set_xticklabels(models)
-        ax4.legend()
-        ax4.grid(True, alpha=0.3)
-        ax4.set_ylim([0, 1])
+        self._plot_reconstruction_errors(ax4, lstm_results, test_labels, title='Reconstruction Error Distribution')
         
         plt.tight_layout()
         

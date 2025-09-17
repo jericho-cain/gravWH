@@ -291,6 +291,7 @@ class LIGODataLoader:
                 logger.info(f"Downloading {detector} data using GWpy fetch_open_data... (attempt {attempt + 1}/{max_retries})")
                 
                 # Use fetch_open_data for public LIGO data with timeout
+                # Follow official GWpy documentation approach
                 strain = TimeSeries.fetch_open_data(detector, start_time, end_time, timeout=timeout)
                 
                 # Extract data
@@ -370,21 +371,34 @@ class LIGODataLoader:
         Dict[str, Optional[Dict]]
             Dictionary mapping detector names to their data
         """
-        if event_name not in self.known_events:
-            logger.error(f"Unknown event: {event_name}")
+        try:
+            from gwosc.datasets import event_gps
+            
+            # Get proper GPS time from GWOSC
+            gps = event_gps(event_name)
+            event_time = int(gps)
+            
+            # Calculate time range around the event
+            half_duration = duration // 2
+            start_time = event_time - half_duration
+            
+            logger.info(f"Downloading data for {event_name} at GPS time {event_time} (range: {start_time} to {start_time + duration})")
+            
+            # Get detectors from known events or use defaults
+            if event_name in self.known_events:
+                detectors = self.known_events[event_name]['detectors']
+            else:
+                # Default to H1 and L1 for most events
+                detectors = ['H1', 'L1']
+                
+        except Exception as e:
+            logger.error(f"Error getting GPS time for {event_name}: {e}")
             return {}
-        
-        event_info = self.known_events[event_name]
-        event_time = event_info['time']
-        detectors = event_info['detectors']
-        run_name = event_info['run']
-        
-        logger.info(f"Downloading data for {event_name} at GPS time {event_time} from {run_name}")
         
         event_data = {}
         for detector in detectors:
             logger.info(f"   Downloading {detector} data...")
-            data = self.download_strain_data(detector, event_time, duration, sample_rate)
+            data = self.download_strain_data(detector, start_time, duration, sample_rate)
             event_data[detector] = data
             
             if data:

@@ -262,36 +262,70 @@ def preprocess_with_cwt(
     5. Log transformation and normalization
     """
     cwt_data = []
+    successful_samples = 0
+    failed_samples = 0
     
     logger.info(f"Computing CWT for {len(strain_data)} samples...")
     
     for i, strain in enumerate(strain_data):
-        # Apply basic preprocessing
-        # High-pass filter to remove low-frequency noise
-        sos = signal.butter(4, 20, btype='highpass', fs=sample_rate, output='sos')
-        filtered = signal.sosfilt(sos, strain)
+        try:
+            # Check for problematic data
+            if np.any(np.isnan(strain)) or np.any(np.isinf(strain)):
+                logger.warning(f"  Sample {i+1}: Contains NaN/inf values, skipping")
+                failed_samples += 1
+                continue
+                
+            if np.std(strain) < 1e-20:  # Essentially constant data (adjusted for LIGO strain scale)
+                logger.warning(f"  Sample {i+1}: No variation in data (std={np.std(strain):.2e}), skipping")
+                failed_samples += 1
+                continue
+            
+            # Apply basic preprocessing
+            # High-pass filter to remove low-frequency noise
+            sos = signal.butter(4, 20, btype='highpass', fs=sample_rate, output='sos')
+            filtered = signal.sosfilt(sos, strain)
+            
+            # Whiten the data
+            whitened = (filtered - np.mean(filtered)) / (np.std(filtered) + 1e-10)
+            
+            # Compute CWT
+            scalogram, freqs = continuous_wavelet_transform(whitened, sample_rate)
+            
+            # Check CWT result
+            if np.any(np.isnan(scalogram)) or np.any(np.isinf(scalogram)):
+                logger.warning(f"  Sample {i+1}: CWT produced NaN/inf values, skipping")
+                failed_samples += 1
+                continue
+            
+            # Resize to target height if needed
+            if scalogram.shape[0] != target_height:
+                # Simple interpolation to target size
+                from scipy.ndimage import zoom
+                zoom_factor = target_height / scalogram.shape[0]
+                scalogram = zoom(scalogram, (zoom_factor, 1), order=1)
+            
+            # Log transform and normalize (crucial for neural networks)
+            log_scalogram = np.log10(scalogram + 1e-10)
+            normalized = (log_scalogram - np.mean(log_scalogram)) / (np.std(log_scalogram) + 1e-10)
+            
+            # Final check
+            if np.any(np.isnan(normalized)) or np.any(np.isinf(normalized)):
+                logger.warning(f"  Sample {i+1}: Final normalization produced NaN/inf, skipping")
+                failed_samples += 1
+                continue
+            
+            cwt_data.append(normalized)
+            successful_samples += 1
+            
+        except Exception as e:
+            logger.warning(f"  Sample {i+1}: Error during processing: {e}")
+            failed_samples += 1
+            continue
         
-        # Whiten the data
-        whitened = (filtered - np.mean(filtered)) / (np.std(filtered) + 1e-10)
-        
-        # Compute CWT
-        scalogram, freqs = continuous_wavelet_transform(whitened, sample_rate)
-        
-        # Resize to target height if needed
-        if scalogram.shape[0] != target_height:
-            # Simple interpolation to target size
-            from scipy.ndimage import zoom
-            zoom_factor = target_height / scalogram.shape[0]
-            scalogram = zoom(scalogram, (zoom_factor, 1), order=1)
-        
-        # Log transform and normalize (crucial for neural networks)
-        log_scalogram = np.log10(scalogram + 1e-10)
-        normalized = (log_scalogram - np.mean(log_scalogram)) / (np.std(log_scalogram) + 1e-10)
-        
-        cwt_data.append(normalized)
-        
-        if (i + 1) % 50 == 0:
-            logger.info(f"  Processed {i+1}/{len(strain_data)} samples")
+        if (i + 1) % 10 == 0:  # More frequent logging
+            logger.info(f"  Processed {i+1}/{len(strain_data)} samples (successful: {successful_samples}, failed: {failed_samples})")
+    
+    logger.info(f"  CWT preprocessing complete: {successful_samples} successful, {failed_samples} failed")
     
     return np.array(cwt_data)
 

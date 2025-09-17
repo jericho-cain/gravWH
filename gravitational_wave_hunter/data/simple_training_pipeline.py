@@ -67,64 +67,32 @@ class SimpleTrainingPipeline:
         """
         logger.info(f" Downloading {num_samples} clean training samples...")
         
-        # Use GPS periods from official O1 observing run (Sept 12, 2015 - Jan 19, 2016)
-        # Based on GWOSC O1 Data Release: https://gwosc.org/data/
-        # GW150914 occurred at GPS time 1126259446 during O1
-        clean_periods = [
-            # Periods around GW150914 (Sept 14, 2015) - known good quality data
-            1126259400, 1126259500, 1126259600, 1126259700, 1126259800,
-            1126259900, 1126260000, 1126260100, 1126260200, 1126260300,
-            1126260400, 1126260500, 1126260600, 1126260700, 1126260800,
-            1126260900, 1126261000, 1126261100, 1126261200, 1126261300,
-            1126261400, 1126261500, 1126261600, 1126261700, 1126261800,
-            1126261900, 1126262000, 1126262100, 1126262200, 1126262300,
-            1126262400, 1126262500, 1126262600, 1126262700, 1126262800,
-            1126262900, 1126263000, 1126263100, 1126263200, 1126263300,
-            1126263400, 1126263500, 1126263600, 1126263700, 1126263800,
-            1126263900, 1126264000, 1126264100, 1126264200, 1126264300,
-            1126264400, 1126264500, 1126264600, 1126264700, 1126264800,
-            1126264900, 1126265000, 1126265100, 1126265200, 1126265300,
-            1126265400, 1126265500, 1126265600, 1126265700, 1126265800,
-            1126265900, 1126266000, 1126266100, 1126266200, 1126266300,
-            1126266400, 1126266500, 1126266600, 1126266700, 1126266800,
-            1126266900, 1126267000, 1126267100, 1126267200, 1126267300,
-            1126267400, 1126267500, 1126267600, 1126267700, 1126267800,
-            1126267900, 1126268000, 1126268100, 1126268200, 1126268300,
-            1126268400, 1126268500, 1126268600, 1126268700, 1126268800,
-            1126268900, 1126269000, 1126269100, 1126269200, 1126269300,
-            1126269400, 1126269500, 1126269600, 1126269700, 1126269800,
-            1126269900, 1126270000, 1126270100, 1126270200, 1126270300
-        ]
+        # Get list of available cached GPS times
+        available_times = self._get_available_gps_times()
+        logger.info(f" Found {len(available_times)} cached GPS times")
+        
+        if len(available_times) < num_samples:
+            logger.warning(f" Only {len(available_times)} cached samples available, reducing request from {num_samples}")
+            num_samples = len(available_times)
+        
+        # Randomly sample from available times
+        import random
+        selected_times = random.sample(available_times, num_samples)
         
         strain_data = []
         labels = []
         
-        # Try to download samples, skipping periods that timeout
-        period_index = 0
-        successful_downloads = 0
-        
-        while successful_downloads < num_samples and period_index < len(clean_periods):
-            gps_time = clean_periods[period_index]
-            
-            try:
-                # Download data from H1 detector
-                data = self.data_loader.download_strain_data('H1', gps_time, 4, 4096)
-                if data:
-                    strain_data.append(data['strain'])
-                    labels.append(0)  # All training data is clean (no signals)
-                    successful_downloads += 1
-                    
-                    if successful_downloads % 10 == 0:
-                        logger.info(f" Downloaded {successful_downloads}/{num_samples} training samples")
-                        
-            except KeyboardInterrupt:
-                logger.warning(f" Network timeout for period {gps_time} - skipping")
-                # Continue to next period
-            except Exception as e:
-                logger.warning(f" Failed to download period {gps_time}: {e}")
-                # Continue to next period
+        # Download samples from selected cached times
+        for i, gps_time in enumerate(selected_times):
+            data = self.data_loader.download_strain_data('H1', gps_time, 4, 4096)
+            if data:
+                strain_data.append(data['strain'])
+                labels.append(0)  # All training data is noise (no signals)
                 
-            period_index += 1
+                if (i + 1) % 10 == 0:
+                    logger.info(f" Downloaded {i + 1}/{num_samples} training samples")
+            else:
+                logger.warning(f" Failed to download data for GPS time {gps_time}")
         
         strain_data = np.array(strain_data)
         labels = np.array(labels)
@@ -208,11 +176,11 @@ class SimpleTrainingPipeline:
             logger.warning("Cache directory not found")
             return available_times
         
-        # Scan cache directory for H1 files
+        # Scan cache directory for H1 files from all observing runs
         for filename in os.listdir(cache_dir):
-            if filename.startswith("O1_H1_") and filename.endswith("_4_4096.npz"):
-                # Extract GPS time from filename: O1_H1_1126256000_4_4096.npz
-                match = re.search(r'O1_H1_(\d+)_4_4096\.npz', filename)
+            if '_H1_' in filename and filename.endswith("_4_4096.npz"):
+                # Extract GPS time from filename: O1_H1_1126256000_4_4096.npz or O2_H1_1167559934_4_4096.npz
+                match = re.search(r'O\d+_H1_(\d+)_4_4096\.npz', filename)
                 if match:
                     gps_time = int(match.group(1))
                     available_times.append(gps_time)

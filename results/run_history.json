@@ -403,13 +403,133 @@
         "crashes": 0
       },
       "notes": "Successful training with 100 samples"
+    },
+    {
+      "run_id": "run_020",
+      "timestamp": "2025-09-17T14:07:28.676355",
+      "status": "success",
+      "hyperparameters": {
+        "training_samples": 110,
+        "test_samples": 30,
+        "cwt_height": 8,
+        "cwt_width": 4096,
+        "optimizer": "SGD",
+        "learning_rate": 0.001,
+        "momentum": 0.9,
+        "weight_decay": 1e-05,
+        "epochs": 50,
+        "batch_size": 1,
+        "latent_dim": 32,
+        "lstm_hidden": 64,
+        "mixed_precision": true,
+        "memory_cleanup": true,
+        "downsampling_factor": 4
+      },
+      "results": {
+        "auc": 0.9270833333333333,
+        "ap": 0.8680555555555556,
+        "training_time": "~6 seconds",
+        "memory_usage": "stable",
+        "crashes": 0
+      },
+      "notes": "Successful training with 110 samples"
+    },
+    {
+      "run_id": "run_021",
+      "timestamp": "2025-09-17T14:08:34.194740",
+      "status": "success",
+      "hyperparameters": {
+        "training_samples": 110,
+        "test_samples": 39,
+        "cwt_height": 8,
+        "cwt_width": 4096,
+        "optimizer": "SGD",
+        "learning_rate": 0.001,
+        "momentum": 0.9,
+        "weight_decay": 1e-05,
+        "epochs": 50,
+        "batch_size": 1,
+        "latent_dim": 32,
+        "lstm_hidden": 64,
+        "mixed_precision": true,
+        "memory_cleanup": true,
+        "downsampling_factor": 4
+      },
+      "results": {
+        "auc": 0.9318181818181819,
+        "ap": 0.8217592592592592,
+        "training_time": "~6 seconds",
+        "memory_usage": "stable",
+        "crashes": 0
+      },
+      "notes": "Successful training with 110 samples"
+    },
+    {
+      "run_id": "run_022",
+      "timestamp": "2025-09-17T14:10:51.283841",
+      "status": "success",
+      "hyperparameters": {
+        "training_samples": 123,
+        "test_samples": 40,
+        "cwt_height": 8,
+        "cwt_width": 4096,
+        "optimizer": "SGD",
+        "learning_rate": 0.001,
+        "momentum": 0.9,
+        "weight_decay": 1e-05,
+        "epochs": 50,
+        "batch_size": 1,
+        "latent_dim": 32,
+        "lstm_hidden": 64,
+        "mixed_precision": true,
+        "memory_cleanup": true,
+        "downsampling_factor": 4
+      },
+      "results": {
+        "auc": 0.9387254901960784,
+        "ap": 0.8445378151260503,
+        "training_time": "~6 seconds",
+        "memory_usage": "stable",
+        "crashes": 0
+      },
+      "notes": "Successful training with 123 samples"
+    },
+    {
+      "run_id": "run_023",
+      "timestamp": "2025-09-17T14:21:53.225404",
+      "status": "success",
+      "hyperparameters": {
+        "training_samples": 98,
+        "test_samples": 24,
+        "cwt_height": 8,
+        "cwt_width": 4096,
+        "optimizer": "SGD",
+        "learning_rate": 0.001,
+        "momentum": 0.9,
+        "weight_decay": 1e-05,
+        "epochs": 50,
+        "batch_size": 1,
+        "latent_dim": 32,
+        "lstm_hidden": 64,
+        "mixed_precision": true,
+        "memory_cleanup": true,
+        "downsampling_factor": 4
+      },
+      "results": {
+        "auc": 0.9675925925925926,
+        "ap": 0.9166666666666665,
+        "training_time": "~6 seconds",
+        "memory_usage": "stable",
+        "crashes": 0
+      },
+      "notes": "Successful training with 98 samples"
     }
   ],
   "best_performance": {
-    "run_id": "run_019",
-    "auc": 0.9605263157894737,
-    "ap": 0.8833333333333333,
-    "samples": 100,
+    "run_id": "run_023",
+    "auc": 0.9675925925925926,
+    "ap": 0.9166666666666665,
+    "samples": 98,
     "key_optimizations": [
       "Reduced CWT dimensions: 16x4096 \u2192 8x4096",
       "SGD optimizer instead of Adam",

@@ -408,7 +408,7 @@ class SimpleTrainingPipeline:
             f"Successful training with {hyperparameters['training_samples']} samples"
         )
         
-        logger.info(f"📊 Run {run_id} logged: AUC={results['auc']:.3f}, AP={results['ap']:.3f}")
+        logger.info(f"Run {run_id} logged: AUC={results['auc']:.3f}, AP={results['ap']:.3f}")
         
         # CRITICAL: Complete model cleanup to prevent accumulation between runs
         if self.lstm_model is not None:
@@ -654,9 +654,7 @@ class SimpleTrainingPipeline:
         # Plot 1: Precision-Recall Curves
         ax1 = axes[0, 0]
         ax1.plot(lstm_results['recall'], lstm_results['precision'], 'b-', linewidth=2, 
-                label=f'CWT-LSTM (AP={lstm_results["avg_precision"]:.3f})')
-        ax1.plot(transformer_results['recall'], transformer_results['precision'], 'r-', linewidth=2,
-                label=f'CWT-Transformer (AP={transformer_results["avg_precision"]:.3f})')
+                label=f'CWT-LSTM Autoencoder (AP={lstm_results["avg_precision"]:.3f})')
         
         # Add baseline (proportion of positive samples)
         if test_labels is not None:
@@ -677,9 +675,7 @@ class SimpleTrainingPipeline:
         # Plot 2: ROC Curves
         ax2 = axes[0, 1]
         ax2.plot(lstm_results['fpr'], lstm_results['tpr'], 'b-', linewidth=2,
-                label=f'CWT-LSTM (AUC={lstm_results["auc"]:.3f})')
-        ax2.plot(transformer_results['fpr'], transformer_results['tpr'], 'r-', linewidth=2,
-                label=f'CWT-Transformer (AUC={transformer_results["auc"]:.3f})')
+                label=f'CWT-LSTM Autoencoder (AUC={lstm_results["auc"]:.3f})')
         ax2.plot([0, 1], [0, 1], 'k--', alpha=0.8, label='Random')
         
         ax2.set_xlabel('False Positive Rate')
@@ -759,7 +755,7 @@ class SimpleTrainingPipeline:
                 f"Pipeline failed with {num_training_samples} samples"
             )
             
-            logger.error(f"❌ Run {run_id} failed: {e}")
+            logger.error(f"Run {run_id} failed: {e}")
             raise e
         
         # Create plots and save to results/ligo_data/

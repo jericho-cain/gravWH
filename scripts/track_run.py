@@ -54,7 +54,7 @@ class RunTracker:
         self._add_to_history(run_data)
         self._update_best_performance(run_data)
         
-        logger.info(f"✅ Logged successful run {run_id}: AUC={results.get('auc', 'N/A')}, AP={results.get('ap', 'N/A')}")
+        logger.info(f"Logged successful run {run_id}: AUC={results.get('auc', 'N/A')}, AP={results.get('ap', 'N/A')}")
         return run_id
     
     def log_failed_run(
@@ -77,7 +77,7 @@ class RunTracker:
         
         self._add_to_failed_runs(run_data)
         
-        logger.warning(f"❌ Logged failed run {run_id}: {error}")
+        logger.warning(f"Logged failed run {run_id}: {error}")
         return run_id
     
     def _generate_run_id(self) -> str:
@@ -181,7 +181,7 @@ class RunTracker:
         best = data.get("best_performance", {})
         
         summary = f"""
-📊 Run Summary:
+Run Summary:
 - Successful runs: {successful_runs}
 - Failed runs: {failed_runs}
 - Best performance: AUC={best.get('auc', 'N/A')}, AP={best.get('ap', 'N/A')}
@@ -207,9 +207,9 @@ class RunTracker:
         all_runs = successful_runs + failed_runs
         all_runs.sort(key=lambda x: x.get("timestamp", ""), reverse=True)
         
-        print(f"\n🕒 Recent {min(n, len(all_runs))} runs:")
+        print(f"\nRecent {min(n, len(all_runs))} runs:")
         for i, run in enumerate(all_runs[:n]):
-            status_emoji = "✅" if run["status"] == "success" else "❌"
+            status_text = "SUCCESS" if run["status"] == "success" else "FAILED"
             run_id = run["run_id"]
             timestamp = run["timestamp"]
             
@@ -217,11 +217,11 @@ class RunTracker:
                 auc = run["results"].get("auc", "N/A")
                 ap = run["results"].get("ap", "N/A")
                 samples = run["hyperparameters"].get("training_samples", "N/A")
-                print(f"  {status_emoji} {run_id}: AUC={auc}, AP={ap}, Samples={samples} ({timestamp})")
+                print(f"  {status_text} {run_id}: AUC={auc}, AP={ap}, Samples={samples} ({timestamp})")
             else:
                 error = run.get("error", "Unknown error")
                 samples = run["hyperparameters"].get("training_samples", "N/A")
-                print(f"  {status_emoji} {run_id}: FAILED - {error}, Samples={samples} ({timestamp})")
+                print(f"  {status_text} {run_id}: FAILED - {error}, Samples={samples} ({timestamp})")
 
 # Example usage
 if __name__ == "__main__":

@@ -592,7 +592,8 @@ def train_autoencoder(
     model: nn.Module, 
     noise_loader: DataLoader, 
     num_epochs: int = 50, 
-    lr: float = 0.001
+    lr: float = 0.001,
+    val_loader: DataLoader = None
 ) -> List[float]:
     """
     Train autoencoder on noise-only data for anomaly detection.
@@ -641,6 +642,10 @@ def train_autoencoder(
     logger.info(f"Training autoencoder for {num_epochs} epochs...")
     
     losses = []
+    val_losses = []
+    best_val_loss = float('inf')
+    patience = 10  # Early stopping patience
+    patience_counter = 0
     
     for epoch in range(num_epochs):
         epoch_loss = 0
@@ -688,6 +693,47 @@ def train_autoencoder(
         
         avg_loss = epoch_loss / num_batches if num_batches > 0 else 0
         losses.append(avg_loss)
+        
+        # Validation loop
+        val_loss = 0
+        val_batches = 0
+        if val_loader is not None:
+            model.eval()
+            with torch.no_grad():
+                for val_batch in val_loader:
+                    val_data = val_batch[0].to(device)
+                    
+                    if scaler is not None:
+                        with torch.cuda.amp.autocast():
+                            val_reconstructed, val_latent = model(val_data)
+                            val_loss_batch = criterion(val_reconstructed, val_data)
+                    else:
+                        val_reconstructed, val_latent = model(val_data)
+                        val_loss_batch = criterion(val_reconstructed, val_data)
+                    
+                    val_loss += val_loss_batch.item()
+                    val_batches += 1
+                    
+                    # Clean up validation variables
+                    del val_data, val_reconstructed, val_latent, val_loss_batch
+                    if torch.cuda.is_available():
+                        torch.cuda.empty_cache()
+            
+            model.train()
+            avg_val_loss = val_loss / val_batches if val_batches > 0 else 0
+            val_losses.append(avg_val_loss)
+            
+            # Early stopping check
+            if avg_val_loss < best_val_loss:
+                best_val_loss = avg_val_loss
+                patience_counter = 0
+            else:
+                patience_counter += 1
+                
+            if patience_counter >= patience:
+                logger.info(f"  Early stopping at epoch {epoch+1} (patience={patience})")
+                break
+        
         scheduler.step(avg_loss)
         
         # CRITICAL: Clear memory after each epoch to prevent accumulation
@@ -704,7 +750,10 @@ def train_autoencoder(
                 scaler = torch.cuda.amp.GradScaler()
         
         if (epoch + 1) % 10 == 0:
-            logger.info(f"  Epoch {epoch+1}/{num_epochs}, Loss: {avg_loss:.6f}")
+            if val_loader is not None:
+                logger.info(f"  Epoch {epoch+1}/{num_epochs}, Train Loss: {avg_loss:.6f}, Val Loss: {avg_val_loss:.6f}")
+            else:
+                logger.info(f"  Epoch {epoch+1}/{num_epochs}, Loss: {avg_loss:.6f}")
     
     return losses
 

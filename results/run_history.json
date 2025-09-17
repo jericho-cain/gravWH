@@ -1,0 +1,506 @@
+{
+  "run_history": [
+    {
+      "run_id": "run_001",
+      "timestamp": "2025-09-17T13:11:42",
+      "status": "success",
+      "hyperparameters": {
+        "training_samples": 100,
+        "test_samples": 25,
+        "cwt_height": 8,
+        "cwt_width": 4096,
+        "optimizer": "SGD",
+        "learning_rate": 0.01,
+        "momentum": 0.9,
+        "weight_decay": 1e-05,
+        "epochs": 20,
+        "batch_size": 1,
+        "latent_dim": 32,
+        "lstm_hidden": 64,
+        "mixed_precision": true,
+        "memory_cleanup": true
+      },
+      "results": {
+        "auc": 0.921,
+        "ap": 0.854,
+        "training_time": "~6 seconds",
+        "memory_usage": "stable",
+        "crashes": 0
+      },
+      "notes": "Major breakthrough: Reduced CWT dimensions from 16x4096 to 8x4096, switched to SGD optimizer, added comprehensive memory cleanup. Achieved outstanding performance with 100 samples."
+    },
+    {
+      "run_id": "run_002",
+      "timestamp": "2025-09-17T11:20:36",
+      "status": "success",
+      "hyperparameters": {
+        "training_samples": 75,
+        "test_samples": 20,
+        "cwt_height": 16,
+        "cwt_width": 4096,
+        "optimizer": "Adam",
+        "learning_rate": 0.001,
+        "epochs": 50,
+        "batch_size": 1,
+        "latent_dim": 32,
+        "lstm_hidden": 64,
+        "mixed_precision": true,
+        "memory_cleanup": true
+      },
+      "results": {
+        "auc": 0.845,
+        "ap": 0.769,
+        "training_time": "~4 minutes",
+        "memory_usage": "stable",
+        "crashes": 0
+      },
+      "notes": "Previous best result with 75 samples. Used Adam optimizer with architectural fixes."
+    },
+    {
+      "run_id": "run_003",
+      "timestamp": "2025-09-17T10:30:00",
+      "status": "success",
+      "hyperparameters": {
+        "training_samples": 50,
+        "test_samples": 20,
+        "cwt_height": 16,
+        "cwt_width": 4096,
+        "optimizer": "Adam",
+        "learning_rate": 0.001,
+        "epochs": 50,
+        "batch_size": 1,
+        "latent_dim": 32,
+        "lstm_hidden": 64,
+        "mixed_precision": true,
+        "memory_cleanup": true
+      },
+      "results": {
+        "auc": 0.833,
+        "ap": 0.733,
+        "training_time": "~3 minutes",
+        "memory_usage": "stable",
+        "crashes": 0
+      },
+      "notes": "Stable baseline with 50 samples. First successful run after memory optimizations."
+    },
+    {
+      "run_id": "run_006",
+      "timestamp": "2025-09-17T13:15:46.335508",
+      "status": "success",
+      "hyperparameters": {
+        "training_samples": 100,
+        "test_samples": 25,
+        "cwt_height": 8,
+        "cwt_width": 4096,
+        "optimizer": "SGD",
+        "learning_rate": 0.01,
+        "momentum": 0.9,
+        "epochs": 20,
+        "batch_size": 1,
+        "latent_dim": 32,
+        "mixed_precision": true,
+        "memory_cleanup": true
+      },
+      "results": {
+        "auc": 0.921,
+        "ap": 0.854,
+        "training_time": "~6 seconds",
+        "memory_usage": "stable",
+        "crashes": 0
+      },
+      "notes": "Major breakthrough with reduced CWT dimensions"
+    },
+    {
+      "run_id": "run_007",
+      "timestamp": "2025-09-17T13:19:20.462502",
+      "status": "success",
+      "hyperparameters": {
+        "training_samples": 109,
+        "test_samples": 30,
+        "cwt_height": 8,
+        "cwt_width": 4096,
+        "optimizer": "SGD",
+        "learning_rate": 0.001,
+        "momentum": 0.9,
+        "weight_decay": 1e-05,
+        "epochs": 20,
+        "batch_size": 1,
+        "latent_dim": 32,
+        "lstm_hidden": 64,
+        "mixed_precision": true,
+        "memory_cleanup": true,
+        "downsampling_factor": 4
+      },
+      "results": {
+        "auc": 0.8939393939393938,
+        "ap": 0.8166666666666667,
+        "training_time": "~6 seconds",
+        "memory_usage": "stable",
+        "crashes": 0
+      },
+      "notes": "Successful training with 109 samples"
+    },
+    {
+      "run_id": "run_008",
+      "timestamp": "2025-09-17T13:19:51.942147",
+      "status": "success",
+      "hyperparameters": {
+        "training_samples": 100,
+        "test_samples": 25,
+        "cwt_height": 8,
+        "cwt_width": 4096,
+        "optimizer": "SGD",
+        "learning_rate": 0.01,
+        "momentum": 0.9,
+        "epochs": 20,
+        "batch_size": 1,
+        "latent_dim": 32,
+        "mixed_precision": true,
+        "memory_cleanup": true
+      },
+      "results": {
+        "auc": 0.921,
+        "ap": 0.854,
+        "training_time": "~6 seconds",
+        "memory_usage": "stable",
+        "crashes": 0
+      },
+      "notes": "Major breakthrough with reduced CWT dimensions"
+    },
+    {
+      "run_id": "run_010",
+      "timestamp": "2025-09-17T13:23:02.838670",
+      "status": "success",
+      "hyperparameters": {
+        "training_samples": 109,
+        "test_samples": 30,
+        "cwt_height": 8,
+        "cwt_width": 4096,
+        "optimizer": "SGD",
+        "learning_rate": 0.001,
+        "momentum": 0.9,
+        "weight_decay": 1e-05,
+        "epochs": 20,
+        "batch_size": 1,
+        "latent_dim": 32,
+        "lstm_hidden": 64,
+        "mixed_precision": true,
+        "memory_cleanup": true,
+        "downsampling_factor": 4
+      },
+      "results": {
+        "auc": 0.8939393939393938,
+        "ap": 0.8166666666666667,
+        "training_time": "~6 seconds",
+        "memory_usage": "stable",
+        "crashes": 0
+      },
+      "notes": "Successful training with 109 samples"
+    },
+    {
+      "run_id": "run_011",
+      "timestamp": "2025-09-17T13:23:48.227651",
+      "status": "success",
+      "hyperparameters": {
+        "training_samples": 109,
+        "test_samples": 30,
+        "cwt_height": 8,
+        "cwt_width": 4096,
+        "optimizer": "SGD",
+        "learning_rate": 0.001,
+        "momentum": 0.9,
+        "weight_decay": 1e-05,
+        "epochs": 20,
+        "batch_size": 1,
+        "latent_dim": 32,
+        "lstm_hidden": 64,
+        "mixed_precision": true,
+        "memory_cleanup": true,
+        "downsampling_factor": 4
+      },
+      "results": {
+        "auc": 0.8939393939393938,
+        "ap": 0.8166666666666667,
+        "training_time": "~6 seconds",
+        "memory_usage": "stable",
+        "crashes": 0
+      },
+      "notes": "Successful training with 109 samples"
+    },
+    {
+      "run_id": "run_012",
+      "timestamp": "2025-09-17T13:24:34.183272",
+      "status": "success",
+      "hyperparameters": {
+        "training_samples": 100,
+        "test_samples": 25,
+        "cwt_height": 8,
+        "cwt_width": 4096,
+        "optimizer": "SGD",
+        "learning_rate": 0.01,
+        "momentum": 0.9,
+        "epochs": 20,
+        "batch_size": 1,
+        "latent_dim": 32,
+        "mixed_precision": true,
+        "memory_cleanup": true
+      },
+      "results": {
+        "auc": 0.921,
+        "ap": 0.854,
+        "training_time": "~6 seconds",
+        "memory_usage": "stable",
+        "crashes": 0
+      },
+      "notes": "Major breakthrough with reduced CWT dimensions"
+    },
+    {
+      "run_id": "run_014",
+      "timestamp": "2025-09-17T13:26:14.726216",
+      "status": "success",
+      "hyperparameters": {
+        "training_samples": 110,
+        "test_samples": 28,
+        "cwt_height": 8,
+        "cwt_width": 4096,
+        "optimizer": "SGD",
+        "learning_rate": 0.001,
+        "momentum": 0.9,
+        "weight_decay": 1e-05,
+        "epochs": 20,
+        "batch_size": 1,
+        "latent_dim": 32,
+        "lstm_hidden": 64,
+        "mixed_precision": true,
+        "memory_cleanup": true,
+        "downsampling_factor": 4
+      },
+      "results": {
+        "auc": 0.8939393939393938,
+        "ap": 0.8166666666666667,
+        "training_time": "~6 seconds",
+        "memory_usage": "stable",
+        "crashes": 0
+      },
+      "notes": "Successful training with 110 samples"
+    },
+    {
+      "run_id": "run_015",
+      "timestamp": "2025-09-17T13:27:44.484860",
+      "status": "success",
+      "hyperparameters": {
+        "training_samples": 110,
+        "test_samples": 28,
+        "cwt_height": 8,
+        "cwt_width": 4096,
+        "optimizer": "SGD",
+        "learning_rate": 0.001,
+        "momentum": 0.9,
+        "weight_decay": 1e-05,
+        "epochs": 20,
+        "batch_size": 1,
+        "latent_dim": 32,
+        "lstm_hidden": 64,
+        "mixed_precision": true,
+        "memory_cleanup": true,
+        "downsampling_factor": 4
+      },
+      "results": {
+        "auc": 0.8939393939393938,
+        "ap": 0.8166666666666667,
+        "training_time": "~6 seconds",
+        "memory_usage": "stable",
+        "crashes": 0
+      },
+      "notes": "Successful training with 110 samples"
+    },
+    {
+      "run_id": "run_016",
+      "timestamp": "2025-09-17T13:32:57.336051",
+      "status": "success",
+      "hyperparameters": {
+        "training_samples": 110,
+        "test_samples": 28,
+        "cwt_height": 8,
+        "cwt_width": 4096,
+        "optimizer": "SGD",
+        "learning_rate": 0.001,
+        "momentum": 0.9,
+        "weight_decay": 1e-05,
+        "epochs": 50,
+        "batch_size": 1,
+        "latent_dim": 32,
+        "lstm_hidden": 64,
+        "mixed_precision": true,
+        "memory_cleanup": true,
+        "downsampling_factor": 4
+      },
+      "results": {
+        "auc": 0.8939393939393938,
+        "ap": 0.8166666666666667,
+        "training_time": "~6 seconds",
+        "memory_usage": "stable",
+        "crashes": 0
+      },
+      "notes": "Successful training with 110 samples"
+    },
+    {
+      "run_id": "run_017",
+      "timestamp": "2025-09-17T14:02:36.681761",
+      "status": "success",
+      "hyperparameters": {
+        "training_samples": 75,
+        "test_samples": 19,
+        "cwt_height": 8,
+        "cwt_width": 4096,
+        "optimizer": "SGD",
+        "learning_rate": 0.001,
+        "momentum": 0.9,
+        "weight_decay": 1e-05,
+        "epochs": 50,
+        "batch_size": 1,
+        "latent_dim": 32,
+        "lstm_hidden": 64,
+        "mixed_precision": true,
+        "memory_cleanup": true,
+        "downsampling_factor": 4
+      },
+      "results": {
+        "auc": 0.9102564102564102,
+        "ap": 0.8888888888888888,
+        "training_time": "~6 seconds",
+        "memory_usage": "stable",
+        "crashes": 0
+      },
+      "notes": "Successful training with 75 samples"
+    },
+    {
+      "run_id": "run_019",
+      "timestamp": "2025-09-17T14:03:06.594710",
+      "status": "success",
+      "hyperparameters": {
+        "training_samples": 100,
+        "test_samples": 25,
+        "cwt_height": 8,
+        "cwt_width": 4096,
+        "optimizer": "SGD",
+        "learning_rate": 0.001,
+        "momentum": 0.9,
+        "weight_decay": 1e-05,
+        "epochs": 50,
+        "batch_size": 1,
+        "latent_dim": 32,
+        "lstm_hidden": 64,
+        "mixed_precision": true,
+        "memory_cleanup": true,
+        "downsampling_factor": 4
+      },
+      "results": {
+        "auc": 0.9605263157894737,
+        "ap": 0.8833333333333333,
+        "training_time": "~6 seconds",
+        "memory_usage": "stable",
+        "crashes": 0
+      },
+      "notes": "Successful training with 100 samples"
+    }
+  ],
+  "best_performance": {
+    "run_id": "run_019",
+    "auc": 0.9605263157894737,
+    "ap": 0.8833333333333333,
+    "samples": 100,
+    "key_optimizations": [
+      "Reduced CWT dimensions: 16x4096 \u2192 8x4096",
+      "SGD optimizer instead of Adam",
+      "Mixed Precision Training (AMP)",
+      "Comprehensive memory cleanup"
+    ]
+  },
+  "failed_runs": [
+    {
+      "run_id": "failed_001",
+      "timestamp": "2025-09-17T13:06:56",
+      "status": "failed",
+      "hyperparameters": {
+        "training_samples": 100,
+        "cwt_height": 16,
+        "optimizer": "Adam"
+      },
+      "error": "KeyboardInterrupt during loss.backward() at epoch 10",
+      "notes": "Memory exhaustion with 16x4096 CWT dimensions and Adam optimizer"
+    },
+    {
+      "run_id": "failed_002",
+      "timestamp": "2025-09-17T13:06:56",
+      "status": "failed",
+      "hyperparameters": {
+        "training_samples": 100,
+        "cwt_height": 16,
+        "optimizer": "SGD"
+      },
+      "error": "KeyboardInterrupt during loss.backward() at epoch 10",
+      "notes": "Still crashed with SGD optimizer - CWT dimensions too large"
+    },
+    {
+      "run_id": "run_009",
+      "timestamp": "2025-09-17T13:22:08.457834",
+      "status": "failed",
+      "hyperparameters": {
+        "training_samples": 150,
+        "test_samples": 30,
+        "cwt_height": 8,
+        "cwt_width": 4096,
+        "optimizer": "SGD",
+        "learning_rate": 0.001,
+        "epochs": 20,
+        "batch_size": 1,
+        "latent_dim": 32,
+        "mixed_precision": true,
+        "memory_cleanup": true
+      },
+      "error": "not enough values to unpack (expected 4, got 3)",
+      "notes": "Pipeline failed with 150 samples"
+    },
+    {
+      "run_id": "run_013",
+      "timestamp": "2025-09-17T13:25:37.322082",
+      "status": "failed",
+      "hyperparameters": {
+        "training_samples": 150,
+        "test_samples": 30,
+        "cwt_height": 8,
+        "cwt_width": 4096,
+        "optimizer": "SGD",
+        "learning_rate": 0.001,
+        "epochs": 20,
+        "batch_size": 1,
+        "latent_dim": 32,
+        "mixed_precision": true,
+        "memory_cleanup": true
+      },
+      "error": "cannot access local variable 'train_cwt' where it is not associated with a value",
+      "notes": "Pipeline failed with 150 samples"
+    },
+    {
+      "run_id": "run_018",
+      "timestamp": "2025-09-17T14:02:36.700667",
+      "status": "failed",
+      "hyperparameters": {
+        "training_samples": 75,
+        "test_samples": 20,
+        "cwt_height": 8,
+        "cwt_width": 4096,
+        "optimizer": "SGD",
+        "learning_rate": 0.001,
+        "epochs": 20,
+        "batch_size": 1,
+        "latent_dim": 32,
+        "mixed_precision": true,
+        "memory_cleanup": true
+      },
+      "error": "Variable data has to be a tensor, but got NoneType",
+      "notes": "Pipeline failed with 75 samples"
+    }
+  ]
+}

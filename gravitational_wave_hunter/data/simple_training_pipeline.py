@@ -41,7 +41,7 @@ class SimpleTrainingPipeline:
         Returns:
             tuple: (strain_data, labels) where labels are all 0 (noise)
         """
-        logger.info(f"📥 Downloading {num_samples} clean training samples...")
+        logger.info(f" Downloading {num_samples} clean training samples...")
         
         # Use clean periods from O1 run (known available periods)
         clean_periods = [
@@ -67,13 +67,13 @@ class SimpleTrainingPipeline:
                 labels.append(0)  # All training data is clean (no signals)
                 
             if (i + 1) % 10 == 0:
-                logger.info(f"📊 Downloaded {i + 1}/{num_samples} training samples")
+                logger.info(f" Downloaded {i + 1}/{num_samples} training samples")
         
         strain_data = np.array(strain_data)
         labels = np.array(labels)
         
-        logger.info(f"✅ Training data: {len(strain_data)} samples, {strain_data.shape}")
-        logger.info(f"📈 Signals: {sum(labels)}, Noise: {sum(1-labels)}")
+        logger.info(f" Training data: {len(strain_data)} samples, {strain_data.shape}")
+        logger.info(f" Signals: {sum(labels)}, Noise: {sum(1-labels)}")
         
         return strain_data, labels
     
@@ -87,7 +87,7 @@ class SimpleTrainingPipeline:
         Returns:
             tuple: (strain_data, labels, snr_values)
         """
-        logger.info(f"📥 Downloading {num_samples} test samples...")
+        logger.info(f" Downloading {num_samples} test samples...")
         
         # Known gravitational wave events
         gw_events = [
@@ -132,8 +132,8 @@ class SimpleTrainingPipeline:
         labels = np.array(labels)
         snr_values = np.array(snr_values)
         
-        logger.info(f"✅ Test data: {len(strain_data)} samples, {strain_data.shape}")
-        logger.info(f"📈 Signals: {sum(labels)}, Noise: {sum(1-labels)}")
+        logger.info(f" Test data: {len(strain_data)} samples, {strain_data.shape}")
+        logger.info(f" Signals: {sum(labels)}, Noise: {sum(1-labels)}")
         
         return strain_data, labels, snr_values
     
@@ -150,10 +150,10 @@ class SimpleTrainingPipeline:
         Returns:
             tuple: (lstm_results, transformer_results)
         """
-        logger.info("🚀 Starting model training...")
+        logger.info(" Starting model training...")
         
         # Preprocess data with CWT
-        logger.info("🔄 Preprocessing data with CWT...")
+        logger.info(" Preprocessing data with CWT...")
         train_cwt = preprocess_with_cwt(train_data)
         test_cwt = preprocess_with_cwt(test_data)
         
@@ -166,7 +166,7 @@ class SimpleTrainingPipeline:
         test_loader = DataLoader(TensorDataset(test_tensor), batch_size=8, shuffle=False)
         
         # Train LSTM model
-        logger.info("📚 Training CWT-LSTM Autoencoder...")
+        logger.info(" Training CWT-LSTM Autoencoder...")
         self.lstm_model = CWT_LSTM_Autoencoder(
             input_height=train_cwt.shape[1],
             input_width=train_cwt.shape[2],
@@ -181,7 +181,7 @@ class SimpleTrainingPipeline:
         lstm_scores = lstm_results['reconstruction_errors']
         
         # Train Transformer model (if available)
-        logger.info("📚 Training CWT-Transformer Autoencoder...")
+        logger.info(" Training CWT-Transformer Autoencoder...")
         try:
             self.transformer_model = CWT_Transformer_Autoencoder(
                 input_height=train_cwt.shape[1],
@@ -241,7 +241,7 @@ class SimpleTrainingPipeline:
     
     def create_plots(self, lstm_results, transformer_results, save_path='simple_results.png'):
         """Create evaluation plots."""
-        logger.info("📊 Creating evaluation plots...")
+        logger.info(" Creating evaluation plots...")
         
         fig, axes = plt.subplots(2, 2, figsize=(15, 12))
         fig.suptitle('Gravitational Wave Detection Results', fontsize=16, fontweight='bold')
@@ -327,7 +327,7 @@ class SimpleTrainingPipeline:
         
         plt.tight_layout()
         plt.savefig(save_path, dpi=150, bbox_inches='tight')
-        logger.info(f"📊 Results saved to {save_path}")
+        logger.info(f" Results saved to {save_path}")
         
         return fig
     
@@ -342,9 +342,9 @@ class SimpleTrainingPipeline:
         Returns:
             tuple: (lstm_results, transformer_results)
         """
-        logger.info("🚀 Starting complete training pipeline...")
-        logger.info(f"📊 Training: {num_training_samples} clean samples")
-        logger.info(f"📊 Testing: {num_test_samples} samples (mix of noise and signals)")
+        logger.info(" Starting complete training pipeline...")
+        logger.info(f" Training: {num_training_samples} clean samples")
+        logger.info(f" Testing: {num_test_samples} samples (mix of noise and signals)")
         
         # Download data
         train_data, train_labels = self.download_training_data(num_training_samples)
@@ -359,7 +359,7 @@ class SimpleTrainingPipeline:
         self.create_plots(lstm_results, transformer_results)
         
         # Print results
-        logger.info("🎯 Final Results:")
+        logger.info(" Final Results:")
         logger.info(f"CWT-LSTM: AUC={lstm_results['auc']:.3f}, AP={lstm_results['avg_precision']:.3f}")
         logger.info(f"CWT-Transformer: AUC={transformer_results['auc']:.3f}, AP={transformer_results['avg_precision']:.3f}")
         

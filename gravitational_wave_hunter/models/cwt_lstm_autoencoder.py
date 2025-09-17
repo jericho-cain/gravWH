@@ -395,32 +395,32 @@ class CWT_LSTM_Autoencoder(nn.Module):
             nn.AdaptiveAvgPool2d((8, input_width//4))  # Reduce spatial dimensions
         )
         
-        # LSTM encoder for temporal evolution
+        # LSTM encoder for temporal evolution - reduced for memory
         self.temporal_encoder = nn.LSTM(
             input_size=32 * 8,  # Flattened spatial features
-            hidden_size=lstm_hidden,
-            num_layers=2,
+            hidden_size=lstm_hidden // 2,  # Reduce hidden size by half
+            num_layers=1,  # Reduce to single layer
             batch_first=True,
-            dropout=0.2
+            dropout=0.0  # Remove dropout to save memory
         )
         
         # Latent space
-        self.to_latent = nn.Linear(lstm_hidden, latent_dim)
+        self.to_latent = nn.Linear(lstm_hidden // 2, latent_dim)
         
         # Decoder
-        self.from_latent = nn.Linear(latent_dim, lstm_hidden)
+        self.from_latent = nn.Linear(latent_dim, lstm_hidden // 2)
         
         self.temporal_decoder = nn.LSTM(
-            input_size=lstm_hidden,
-            hidden_size=lstm_hidden,
-            num_layers=2,
+            input_size=lstm_hidden // 2,
+            hidden_size=lstm_hidden // 2,
+            num_layers=1,  # Reduce to single layer
             batch_first=True,
-            dropout=0.2
+            dropout=0.0  # Remove dropout to save memory
         )
         
         # Spatial decoder - ultra-compact to avoid memory explosion
         self.spatial_decoder = nn.Sequential(
-            nn.Linear(lstm_hidden, 16 * 4 * 4),  # Even smaller: 16x4x4 instead of 32x8x8
+            nn.Linear(lstm_hidden // 2, 16 * 4 * 4),  # Even smaller: 16x4x4 instead of 32x8x8
             nn.ReLU(),
             nn.Unflatten(1, (16, 4, 4)),  # Reshape to tiny fixed spatial dimensions
             nn.ConvTranspose2d(16, 8, kernel_size=3, stride=2, padding=1),

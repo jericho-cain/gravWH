@@ -1453,6 +1453,36 @@
         "crashes": 0
       },
       "notes": "Successful training with 100 samples"
+    },
+    {
+      "run_id": "run_062",
+      "timestamp": "2025-09-18T19:01:24.853004",
+      "status": "success",
+      "hyperparameters": {
+        "training_samples": 100,
+        "test_samples": 25,
+        "cwt_height": 8,
+        "cwt_width": 4096,
+        "optimizer": "SGD",
+        "learning_rate": 0.001,
+        "momentum": 0.9,
+        "weight_decay": 1e-05,
+        "epochs": 50,
+        "batch_size": 1,
+        "latent_dim": 32,
+        "lstm_hidden": 64,
+        "mixed_precision": true,
+        "memory_cleanup": true,
+        "downsampling_factor": 4
+      },
+      "results": {
+        "auc": 0.967948717948718,
+        "ap": 0.9722222222222222,
+        "training_time": "~6 seconds",
+        "memory_usage": "stable",
+        "crashes": 0
+      },
+      "notes": "Successful training with 100 samples"
     }
   ],
   "best_performance": {

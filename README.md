@@ -87,7 +87,6 @@ python scripts/create_better_diagram.py
 Check the `results/` folder for:
 - `simple_results_aws.png` - AWS LIGO data results
 - `lstm_cwt_model.pth` - Trained CWT-LSTM model
-- `transformer_cwt_model.pth` - Trained CWT-transformer model
 - `run_history.json` - Training history
 
 ## Performance Results
@@ -161,15 +160,13 @@ gravitational_wave_hunter/
 ├── results/                        # Generated plots and results
 │   ├── simple_results_aws.png     # AWS LIGO data results
 │   ├── lstm_cwt_model.pth         # Trained CWT-LSTM model
-│   ├── transformer_cwt_model.pth  # Trained CWT-transformer model
 │   └── run_history.json           # Training history
 ├── gravitational_wave_hunter/      # Core package
 │   ├── data/
 │   │   ├── ligo_data_loader.py    # LIGO data loading utilities
 │   │   └── simple_training_pipeline.py # Training pipeline
 │   ├── models/
-│   │   ├── cwt_lstm_autoencoder.py # Main CWT-LSTM model
-│   │   └── cwt_transformer_autoencoder.py # CWT-transformer model
+│   │   └── cwt_lstm_autoencoder.py # Main CWT-LSTM model
 │   └── evaluation/
 │       └── advanced_metrics.py     # Evaluation metrics
 ├── docs/                           # Documentation
